@@ -1,13 +1,16 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{C11F801F-40DA-D363-31BE-FA84CF6C27D2}",
+	"EngineAssociation": "{3A41C740-4EF3-A2A8-E19D-9FBEC260D8B1}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
 		{
 			"Name": "WalkSimulator",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		}
 	]
 }
