@@ -13,11 +13,28 @@ USTRUCT(BlueprintType)
 struct WALKSIMULATOR_API FPathPoint {
 	GENERATED_BODY()
 
-		UPROPERTY(BlueprintReadWrite)
-		float Time;
+	UPROPERTY(BlueprintReadWrite)
+	float Time;
 
 	UPROPERTY(BlueprintReadWrite)
-		FVector Point;
+	FVector Point;
+
+public:
+	friend bool operator< (const FPathPoint& LHP, const FPathPoint& RHP)
+	{
+		return LHP.Time < RHP.Time;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct WALKSIMULATOR_API FPathPointList {
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 WalkerId;
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FPathPoint> PointList;
 };
 
 UCLASS()
@@ -27,5 +44,5 @@ class WALKSIMULATOR_API UWalkSimulatorFunctionLibrary : public UBlueprintFunctio
 
 public:
 	UFUNCTION(BlueprintCallable)
-	static void InitWalkPath(const FString& FilePath, TMap<int32, FPathPoint>& WalkPath);
+	static void InitWalkPath(const FString& FilePath, TMap<int32, FPathPointList>& WalkPath);
 };

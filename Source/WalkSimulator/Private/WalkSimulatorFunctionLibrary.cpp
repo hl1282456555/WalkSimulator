@@ -3,12 +3,15 @@
 
 #include "WalkSimulatorFunctionLibrary.h"
 
-void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<int32, FPathPoint>& WalkPath)
+void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<int32, FPathPointList>& WalkPath)
 {
 	if (!FPaths::FileExists(FilePath))
 	{
 		return;
 	}
+
+	WalkPath.Empty();
+
 	TArray<FString> stringArray;
 	FFileHelper::LoadFileToStringArray(stringArray, *FilePath);
 	if (stringArray.Num() <= 0)
@@ -16,14 +19,13 @@ void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<i
 		return;
 	}
 
-
 	for (auto currentString : stringArray)
 	{
 		FString leftString, rightString;
 		int32 tempId;
 		FPathPoint tempPathPoint;
 
-		currentString.Split(TEXT(" "), &leftString, &rightString);
+		currentString.Split(TEXT(","), &leftString, &rightString);
 
 		if (leftString.IsEmpty())
 		{
@@ -38,7 +40,7 @@ void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<i
 			continue;
 		}
 
-		currentString.Split(TEXT(" "), &leftString, &rightString);
+		currentString.Split(TEXT(","), &leftString, &rightString);
 		if (leftString.IsEmpty())
 		{
 			continue;
@@ -51,7 +53,7 @@ void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<i
 			continue;
 		}
 
-		currentString.Split(TEXT(" "), &leftString, &rightString);
+		currentString.Split(TEXT(","), &leftString, &rightString);
 		if (leftString.IsEmpty())
 		{
 			continue;
@@ -65,6 +67,20 @@ void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<i
 
 		tempPathPoint.Point.Y = FCString::Atof(*rightString);
 
-		WalkPath.Add(tempId, tempPathPoint);
+		FPathPointList pathList = WalkPath.FindRef(tempId);
+		pathList.WalkerId = tempId;
+		pathList.PointList.Add(tempPathPoint);
+		WalkPath.Add(tempId, pathList);
+	}
+	
+	TArray<int32> walkerIds;
+	WalkPath.GetKeys(walkerIds);
+
+	for (auto currentId : walkerIds)
+	{
+		FPathPointList* pathPointList = WalkPath.Find(currentId);
+		TArray<FPathPoint> pathPoint = WalkPath.Find(currentId)->PointList;
+		pathPoint.Sort();
+		pathPointList->PointList = pathPoint;
 	}
 }
