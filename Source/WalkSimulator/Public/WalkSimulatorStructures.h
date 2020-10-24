@@ -56,5 +56,5 @@ public:
 	float	FrameTime;
 
 	UPROPERTY(BlueprintReadWrite)
-	TMap<FString, FVector>	BoneDatas;
+	TMap<FName, FVector>	BoneDatas;
 };
