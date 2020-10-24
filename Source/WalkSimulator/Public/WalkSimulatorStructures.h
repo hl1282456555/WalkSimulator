@@ -17,11 +17,9 @@ enum class ECaptureState : uint8
 	SynthesisVideo,
 };
 
-/**
- *
- */
 USTRUCT(BlueprintType)
-struct FPathPoint {
+struct FPathPoint
+{
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite)
@@ -38,7 +36,8 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FPathPointList {
+struct FPathPointList
+{
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite)
@@ -46,4 +45,16 @@ struct FPathPointList {
 
 	UPROPERTY(BlueprintReadWrite)
 		TArray<FPathPoint> PointList;
+};
+
+USTRUCT(BlueprintType)
+struct FAnimFrame
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite)
+	float	FrameTime;
+
+	UPROPERTY(BlueprintReadWrite)
+	TMap<FString, FVector>	BoneDatas;
 };

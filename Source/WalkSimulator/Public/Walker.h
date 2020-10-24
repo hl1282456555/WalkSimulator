@@ -36,4 +36,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TArray<FPathPoint> PathPoints;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	TMap<float, FAnimFrame>	AnimFrames;
 };
