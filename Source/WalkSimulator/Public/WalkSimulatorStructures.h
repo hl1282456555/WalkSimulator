@@ -28,6 +28,9 @@ struct FPathPoint
 	UPROPERTY(BlueprintReadWrite)
 		FVector Point;
 
+	UPROPERTY(BlueprintReadWrite)
+		float Rotation;
+
 public:
 	friend bool operator< (const FPathPoint& LHP, const FPathPoint& RHP)
 	{

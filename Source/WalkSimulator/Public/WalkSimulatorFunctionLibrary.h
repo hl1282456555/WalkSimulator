@@ -15,4 +15,7 @@ class WALKSIMULATOR_API UWalkSimulatorFunctionLibrary : public UBlueprintFunctio
 public:
 	UFUNCTION(BlueprintCallable)
 	static void InitWalkPath(const FString& FilePath, TMap<int32, FPathPointList>& WalkPath);
+
+	UFUNCTION(BlueprintCallable)
+	static void WalkPathInterpolation(UPARAM(Ref) TMap<int32, FPathPointList>& WalkPath, const float& DeltTime);
 };

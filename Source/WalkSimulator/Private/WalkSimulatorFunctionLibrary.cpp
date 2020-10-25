@@ -2,6 +2,7 @@
 
 
 #include "WalkSimulatorFunctionLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<int32, FPathPointList>& WalkPath)
 {
@@ -82,5 +83,80 @@ void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<i
 		TArray<FPathPoint> pathPoint = WalkPath.Find(currentId)->PointList;
 		pathPoint.Sort();
 		pathPointList->PointList = pathPoint;
+	}
+}
+
+void UWalkSimulatorFunctionLibrary::WalkPathInterpolation(TMap<int32, FPathPointList>& WalkPath, const float& DeltTime)
+{
+	TArray<int32> walkers;
+	WalkPath.GetKeys(walkers);
+
+	for (int32 walkerIndex = 0; walkerIndex < walkers.Num(); walkerIndex++)
+	{
+		TArray<FPathPoint> pointList = WalkPath.FindRef(walkers[walkerIndex]).PointList;
+		if (pointList.Num() <= 1)
+		{
+			continue;
+		}
+
+		TArray<FPathPoint> tempPointList;
+		pointList[0].Rotation = UKismetMathLibrary::FindLookAtRotation(pointList[0].Point, pointList[1].Point).Yaw;
+		tempPointList.Add(pointList[0]);
+
+		for (int32 ponitIndex = 1; ponitIndex < pointList.Num() -1; ponitIndex++)
+		{
+			FVector currentPath = pointList[ponitIndex].Point - pointList[ponitIndex - 1].Point;
+			FVector nextPath = pointList[ponitIndex + 1].Point - pointList[ponitIndex].Point;
+			int32 pathFrame = static_cast<int32>((pointList[ponitIndex].Time - pointList[ponitIndex - 1].Time) / DeltTime);
+			//float pathRotation = (180.f) / PI * FMath::Acos(FVector::DotProduct(currentPath.GetSafeNormal(), nextPath.GetSafeNormal()));
+			float pathStartTime = pointList[ponitIndex].Time;
+			float pathStartRotation = UKismetMathLibrary::FindLookAtRotation(pointList[ponitIndex - 1].Point, pointList[ponitIndex].Point).Yaw;
+			float PathEndRotation = UKismetMathLibrary::FindLookAtRotation(pointList[ponitIndex].Point, pointList[ponitIndex + 1].Point).Yaw;
+			float deltRotaion = (PathEndRotation - pathStartRotation) / pathFrame;
+			float deletLength = currentPath.Size() / pathFrame;
+
+			FPathPoint currentPathPoint;
+			if (pathFrame > 1)
+			{
+				for (int32 currentFrame = 1; currentFrame < pathFrame; currentFrame++)
+				{
+					//TODO:旋转边界值处理
+					currentPathPoint.Time = pathStartTime + DeltTime * currentFrame;
+					currentPathPoint.Rotation = pathStartRotation + deltRotaion * currentFrame;
+					currentPathPoint.Point = pointList[ponitIndex - 1].Point + currentPath.GetSafeNormal() * (deletLength * currentFrame);
+					tempPointList.Add(currentPathPoint);
+				}
+			}
+			pointList[ponitIndex].Rotation = PathEndRotation;
+			tempPointList.Add(pointList[ponitIndex]);
+		}
+
+		//最后一段路线插值
+		float lastPathStartTime = tempPointList.Last().Time;
+		float lastPathEndTime = pointList.Last().Time;
+		int32 lastPathFrame = static_cast<int32>((lastPathEndTime - lastPathStartTime) / DeltTime);
+		FVector lastPahtStartPoint = tempPointList.Last().Point;
+		FVector lastPaht = pointList.Last().Point - tempPointList.Last().Point;
+		float lastPathRotation = UKismetMathLibrary::FindLookAtRotation(tempPointList.Last().Point, pointList.Last().Point).Yaw;
+		float lastPathDeltLength = lastPaht.Size() / lastPathFrame;
+
+		FPathPoint currentLastPathPoint;
+		if (lastPathFrame > 1)
+		{
+			for (int32 currentLastPathFrame = 1; currentLastPathFrame < lastPathFrame; currentLastPathFrame++)
+			{
+				currentLastPathPoint.Time = lastPathStartTime + DeltTime * currentLastPathFrame;
+				currentLastPathPoint.Rotation = lastPathRotation;
+				currentLastPathPoint.Point = lastPahtStartPoint + lastPaht.GetSafeNormal() * (lastPathDeltLength * currentLastPathFrame);
+				tempPointList.Add(currentLastPathPoint);
+			}
+		}
+		pointList.Last().Rotation = lastPathRotation;
+		tempPointList.Add(pointList.Last());
+
+		FPathPointList currentPointList;
+		currentPointList.PointList = tempPointList;
+		currentPointList.WalkerId = walkerIndex;
+		WalkPath.Add(walkers[walkerIndex], currentPointList);
 	}
 }
