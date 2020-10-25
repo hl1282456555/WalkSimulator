@@ -24,7 +24,16 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	void CaptureAnimFrame(const float& StartRecordTime);
+
+	UFUNCTION(BlueprintCallable)
+	void InitWalker(USkeletalMesh* Mesh, UClass* AnimClass);
+
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	USceneComponent* Scene;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class USkeletalMeshComponent*	SkeletalMesh;
 
@@ -33,6 +42,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int32 WalkerId;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FPathPoint CurrentPoint;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FAnimFrame CurrentAnimFrame;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TArray<FPathPoint> PathPoints;

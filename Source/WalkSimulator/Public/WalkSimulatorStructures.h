@@ -31,6 +31,9 @@ struct FPathPoint
 	UPROPERTY(BlueprintReadWrite)
 		float Rotation;
 
+	UPROPERTY(BlueprintReadWrite)
+		float Speed;
+
 public:
 	friend bool operator< (const FPathPoint& LHP, const FPathPoint& RHP)
 	{
@@ -59,5 +62,5 @@ public:
 	float	FrameTime;
 
 	UPROPERTY(BlueprintReadWrite)
-	TMap<FName, FVector>	BoneDatas;
+	TMap<FName, FTransform>	BoneDatas;
 };
