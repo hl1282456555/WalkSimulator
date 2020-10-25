@@ -30,12 +30,24 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void InitWalker(USkeletalMesh* Mesh, UClass* AnimClass);
 
+	UFUNCTION(BlueprintCallable)
+	void SetBonePose(const float& Time);
+
+	UFUNCTION(BlueprintCallable)
+	void SetWalkerTransform(const float& Time);
+
+private:
+	bool FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame);
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USceneComponent* Scene;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class USkeletalMeshComponent*	SkeletalMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UPoseableMeshComponent* PoseableMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent*		BoundMesh;
@@ -45,9 +57,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FPathPoint CurrentPoint;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	FAnimFrame CurrentAnimFrame;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TArray<FPathPoint> PathPoints;
