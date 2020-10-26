@@ -38,6 +38,7 @@ public class RuntimeTransformer : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+				"ImageWrapper"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
