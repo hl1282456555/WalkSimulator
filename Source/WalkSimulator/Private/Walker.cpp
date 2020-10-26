@@ -41,6 +41,10 @@ void AWalker::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UWorld* world = GEngine->GetWorldFromContextObjectChecked(this);
+	float time = world ? world->GetTimeSeconds() : 0;
+	
+	SetWalkerTransform(time - SimulateTime);
 }
 
 void AWalker::CaptureAnimFrame(const float& StartRecordTime)

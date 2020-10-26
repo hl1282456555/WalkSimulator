@@ -47,10 +47,13 @@ struct FPathPointList
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite)
-		int32 WalkerId;
+	FString MeshName;
 
 	UPROPERTY(BlueprintReadWrite)
-		TArray<FPathPoint> PointList;
+	int32 WalkerId;
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FPathPoint> PointList;
 };
 
 USTRUCT(BlueprintType)

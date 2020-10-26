@@ -56,7 +56,10 @@ public:
 	int32 WalkerId;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	FPathPoint CurrentPoint;
+	FString MeshName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float SimulateTime;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TArray<FPathPoint> PathPoints;
