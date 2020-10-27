@@ -19,9 +19,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void WalkPathInterpolation(UPARAM(Ref) TMap<int32, FPathPointList>& WalkPath, const float& DeltTime);
 
-	UFUNCTION(BlueprintPure)
-		static float ConvertHFOVToFocalLength(float SensorWidth, float HFOV);
+private:
+	static float CalculateDelatRotation(float& StartRotation, float& EndRotation);
 
 	UFUNCTION(BlueprintPure)
-		static float ConvertFocalLengthToHFOV(float SensorWidth, float FocalLength);
+	static float ConvertHFOVToFocalLength(float SensorWidth, float HFOV);
+
+	UFUNCTION(BlueprintPure)
+	static float ConvertFocalLengthToHFOV(float SensorWidth, float FocalLength);
 };

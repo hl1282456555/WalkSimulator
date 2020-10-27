@@ -6,6 +6,7 @@
 #include "Walker.h"
 
 AWalkSimulatorGameModeBase::AWalkSimulatorGameModeBase()
+	:InterpolationTime(0.04)
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
@@ -55,7 +56,7 @@ void AWalkSimulatorGameModeBase::Tick(float DeltaSeconds)
 void AWalkSimulatorGameModeBase::StartSimulate(const FString& DataFile)
 {
 	UWalkSimulatorFunctionLibrary::InitWalkPath(DataFile, WalkPath);
-	UWalkSimulatorFunctionLibrary::WalkPathInterpolation(WalkPath, 0.025);
+	UWalkSimulatorFunctionLibrary::WalkPathInterpolation(WalkPath, InterpolationTime);
 
 	UWorld* world = GEngine->GetWorldFromContextObjectChecked(this);
 	StartSimulateTime = world ? 0.f : world->GetTimeSeconds();

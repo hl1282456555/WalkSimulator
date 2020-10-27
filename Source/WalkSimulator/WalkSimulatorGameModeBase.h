@@ -31,4 +31,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> SimulateWalkerClass; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float InterpolationTime;
 };

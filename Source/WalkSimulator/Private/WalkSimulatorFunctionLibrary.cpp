@@ -108,12 +108,12 @@ void UWalkSimulatorFunctionLibrary::WalkPathInterpolation(TMap<int32, FPathPoint
 			FVector currentPath = pointList[ponitIndex].Point - pointList[ponitIndex - 1].Point;
 			FVector nextPath = pointList[ponitIndex + 1].Point - pointList[ponitIndex].Point;
 			int32 pathFrame = static_cast<int32>((pointList[ponitIndex].Time - pointList[ponitIndex - 1].Time) / DeltTime);
-			float pathStartTime = pointList[ponitIndex].Time;
+			float pathStartTime = pointList[ponitIndex - 1].Time;
 			float pathStartRotation = UKismetMathLibrary::FindLookAtRotation(pointList[ponitIndex - 1].Point, pointList[ponitIndex].Point).Yaw;
 			float pathEndRotation = UKismetMathLibrary::FindLookAtRotation(pointList[ponitIndex].Point, pointList[ponitIndex + 1].Point).Yaw;
-			float deltRotaion = (pathEndRotation - pathStartRotation) / pathFrame;
+			float deltRotaion = CalculateDelatRotation(pathStartRotation, pathEndRotation) / pathFrame;//(pathEndRotation - pathStartRotation) / pathFrame;
 			float deltLength = currentPath.Size() / pathFrame;
-			float pathSpeed = currentPath.Size() / (pointList[ponitIndex + 1].Time - pathStartTime);
+			float pathSpeed = currentPath.Size() / (pointList[ponitIndex].Time - pathStartTime);
 
 			FPathPoint currentPathPoint;
 			if (pathFrame > 1)
@@ -122,13 +122,14 @@ void UWalkSimulatorFunctionLibrary::WalkPathInterpolation(TMap<int32, FPathPoint
 				{
 					//TODO:旋转边界值处理
 					currentPathPoint.Time = pathStartTime + DeltTime * currentFrame;
-					currentPathPoint.Rotation = pathStartRotation;// +deltRotaion * currentFrame;
+					currentPathPoint.Rotation = pathStartRotation +deltRotaion * currentFrame;
 					currentPathPoint.Point = pointList[ponitIndex - 1].Point + currentPath.GetSafeNormal() * (deltLength * currentFrame);
 					currentPathPoint.Speed = pathSpeed;
 					tempPointList.Add(currentPathPoint);
 				}
 			}
 			pointList[ponitIndex].Rotation = pathEndRotation;
+			pointList[ponitIndex].Speed = pathSpeed;
 			tempPointList.Add(pointList[ponitIndex]);
 		}
 
@@ -161,6 +162,24 @@ void UWalkSimulatorFunctionLibrary::WalkPathInterpolation(TMap<int32, FPathPoint
 		currentPointList.WalkerId = walkerIndex;
 		WalkPath.Add(walkers[walkerIndex], currentPointList);
 	}
+}
+
+float UWalkSimulatorFunctionLibrary::CalculateDelatRotation(float& StartRotation, float& EndRotation)
+{
+	if (FMath::Abs(StartRotation - EndRotation) < 180.f)
+	{
+		return EndRotation - StartRotation;
+	}
+
+	if (StartRotation < 0)
+	{
+		StartRotation += 360.f;
+	}
+	else
+	{
+		EndRotation += 360.f;
+	}
+	return EndRotation - StartRotation;
 }
 
 float UWalkSimulatorFunctionLibrary::ConvertHFOVToFocalLength(float SensorWidth, float HFOV)
