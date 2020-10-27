@@ -59,14 +59,14 @@ void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<i
 		{
 			continue;
 		}
-		tempPathPoint.Point.X = FCString::Atof(*leftString);
+		tempPathPoint.Point.X = FCString::Atof(*leftString) * 10.f;
 
 		if (rightString.IsEmpty())
 		{
 			continue;
 		}
 
-		tempPathPoint.Point.Y = FCString::Atof(*rightString);
+		tempPathPoint.Point.Y = FCString::Atof(*rightString) * 10.f;
 
 		FPathPointList pathList = WalkPath.FindRef(tempId);
 		pathList.WalkerId = tempId;
@@ -122,7 +122,7 @@ void UWalkSimulatorFunctionLibrary::WalkPathInterpolation(TMap<int32, FPathPoint
 				{
 					//TODO:旋转边界值处理
 					currentPathPoint.Time = pathStartTime + DeltTime * currentFrame;
-					currentPathPoint.Rotation = pathStartRotation + deltRotaion * currentFrame;
+					currentPathPoint.Rotation = pathStartRotation;// +deltRotaion * currentFrame;
 					currentPathPoint.Point = pointList[ponitIndex - 1].Point + currentPath.GetSafeNormal() * (deltLength * currentFrame);
 					currentPathPoint.Speed = pathSpeed;
 					tempPointList.Add(currentPathPoint);

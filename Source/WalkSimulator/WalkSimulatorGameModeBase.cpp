@@ -44,7 +44,7 @@ void AWalkSimulatorGameModeBase::Tick(float DeltaSeconds)
 				walker->PathPoints = pathPointList.PointList;
 				walker->WalkerId = pathPointList.WalkerId;
 				walker->MeshName = pathPointList.MeshName;
-				walker->SimulateTime = simulateTime;
+				walker->SimulateTime = StartSimulateTime;
 
 				WalkPath.Remove(walkerIds[walkerIndex]);
 			}
@@ -55,6 +55,7 @@ void AWalkSimulatorGameModeBase::Tick(float DeltaSeconds)
 void AWalkSimulatorGameModeBase::StartSimulate(const FString& DataFile)
 {
 	UWalkSimulatorFunctionLibrary::InitWalkPath(DataFile, WalkPath);
+	UWalkSimulatorFunctionLibrary::WalkPathInterpolation(WalkPath, 0.025);
 
 	UWorld* world = GEngine->GetWorldFromContextObjectChecked(this);
 	StartSimulateTime = world ? 0.f : world->GetTimeSeconds();

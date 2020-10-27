@@ -62,6 +62,9 @@ public:
 	float SimulateTime;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FPathPoint CurrentPoint;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TArray<FPathPoint> PathPoints;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

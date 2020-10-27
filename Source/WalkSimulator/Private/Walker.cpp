@@ -97,9 +97,10 @@ void AWalker::SetWalkerTransform(const float& Time)
 	}
 
 	TArray<FPathPoint> tempPathPoints = PathPoints;
-	FRotator rot;
+	
 	for (int32 pointIndex = 0; pointIndex < PathPoints.Num(); pointIndex++)
 	{
+		FRotator rot;
 		if ((pointIndex + 1) < PathPoints.Num())
 		{
 			if (Time < PathPoints[pointIndex].Time)
@@ -115,11 +116,13 @@ void AWalker::SetWalkerTransform(const float& Time)
 				SetActorLocation(PathPoints[deltTime > 0 ? pointIndex + 1 : pointIndex].Point);
 				rot.Yaw = deltTime > 0 ? PathPoints[pointIndex + 1].Rotation : PathPoints[pointIndex].Rotation;
 				SetActorRotation(rot);
+				CurrentPoint = tempPathPoints[pointIndex];
 				tempPathPoints.RemoveAt(pointIndex);
 				break;
 			}
 			else
 			{
+				CurrentPoint = tempPathPoints[pointIndex];
 				tempPathPoints.RemoveAt(pointIndex);
 			}
 		}
@@ -128,6 +131,7 @@ void AWalker::SetWalkerTransform(const float& Time)
 			SetActorLocation(PathPoints[pointIndex].Point);
 			rot.Yaw = PathPoints[pointIndex].Rotation;
 			SetActorRotation(rot);
+			CurrentPoint = tempPathPoints[pointIndex];
 			tempPathPoints.RemoveAt(pointIndex);
 		}
 	}
