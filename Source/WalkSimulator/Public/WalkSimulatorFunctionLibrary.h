@@ -18,4 +18,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void WalkPathInterpolation(UPARAM(Ref) TMap<int32, FPathPointList>& WalkPath, const float& DeltTime);
+
+private:
+	static float CalculateDelatRotation(float& StartRotation, float& EndRotation);
 };
