@@ -38,7 +38,7 @@ void UAsyncScreenShotTask::OnScreenshotCaptured(int32 Width, int32 Height, const
 	IImageWrapperModule& imageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
 	IImageWrapperPtr imageWrapper = imageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
 
-	if (!imageWrapper.IsValid() || !imageWrapper->SetRaw(Colors.GetData(), Colors.Num() * sizeof(FColor), Resolution.X, Resolution.Y, ERGBFormat::RGBA, 8)) {
+	if (!imageWrapper.IsValid() || !imageWrapper->SetRaw(Colors.GetData(), Colors.Num() * sizeof(FColor), Width, Height, ERGBFormat::RGBA, 8)) {
 		CapturedDelegate.ExecuteIfBound(false, TEXT(""));
 		RemoveFromRoot();
 		return;
