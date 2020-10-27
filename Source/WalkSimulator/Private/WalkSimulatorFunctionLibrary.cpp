@@ -162,3 +162,19 @@ void UWalkSimulatorFunctionLibrary::WalkPathInterpolation(TMap<int32, FPathPoint
 		WalkPath.Add(walkers[walkerIndex], currentPointList);
 	}
 }
+
+float UWalkSimulatorFunctionLibrary::ConvertHFOVToFocalLength(float SensorWidth, float HFOV)
+{
+	float focalLength = (SensorWidth / 2.f) / FMath::Tan(FMath::DegreesToRadians(HFOV / 2.f));
+	return focalLength;
+}
+
+float UWalkSimulatorFunctionLibrary::ConvertFocalLengthToHFOV(float SensorWidth, float FocalLength)
+{
+	if (FocalLength <= 0) {
+		return 0;
+	}
+
+	float HFOV = FMath::RadiansToDegrees(2.f * FMath::Atan(SensorWidth / (2.f * FocalLength)));
+	return HFOV;
+}
