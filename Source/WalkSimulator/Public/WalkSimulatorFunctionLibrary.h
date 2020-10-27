@@ -21,4 +21,10 @@ public:
 
 private:
 	static float CalculateDelatRotation(float& StartRotation, float& EndRotation);
+
+	UFUNCTION(BlueprintPure)
+	static float ConvertHFOVToFocalLength(float SensorWidth, float HFOV);
+
+	UFUNCTION(BlueprintPure)
+	static float ConvertFocalLengthToHFOV(float SensorWidth, float FocalLength);
 };
