@@ -27,6 +27,7 @@ AWalker::AWalker(const FObjectInitializer& ObjectInitializer)
 	PoseableMesh->SetupAttachment(GetRootComponent());
 
 	WalkerId = -1;
+	CheckStartIndex = 0;
 }
 
 // Called when the game starts or when spawned
@@ -40,11 +41,6 @@ void AWalker::BeginPlay()
 void AWalker::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	UWorld* world = GEngine->GetWorldFromContextObjectChecked(this);
-	float time = world ? world->GetTimeSeconds() : 0;
-	
-	SetWalkerTransform(time - SimulateTime);
 }
 
 void AWalker::CaptureAnimFrame(const float& StartRecordTime)
@@ -95,12 +91,10 @@ void AWalker::SetWalkerTransform(const float& Time)
 	{
 		return;
 	}
-
-	TArray<FPathPoint> tempPathPoints = PathPoints;
 	
-	for (int32 pointIndex = 0; pointIndex < PathPoints.Num(); pointIndex++)
+	for (int32 pointIndex = CheckStartIndex; pointIndex < PathPoints.Num(); pointIndex++)
 	{
-		FRotator rot;
+		FRotator rot(FRotator::ZeroRotator);
 		if ((pointIndex + 1) < PathPoints.Num())
 		{
 			if (Time < PathPoints[pointIndex].Time)
@@ -108,6 +102,7 @@ void AWalker::SetWalkerTransform(const float& Time)
 				SetActorLocation(PathPoints[pointIndex].Point);
 				rot.Yaw = PathPoints[pointIndex].Rotation;
 				SetActorRotation(rot);
+				CheckStartIndex = pointIndex;
 				break;
 			}
 			else if (PathPoints[pointIndex].Time < Time && PathPoints[pointIndex + 1].Time > Time)
@@ -116,14 +111,14 @@ void AWalker::SetWalkerTransform(const float& Time)
 				SetActorLocation(PathPoints[deltTime > 0 ? pointIndex + 1 : pointIndex].Point);
 				rot.Yaw = deltTime > 0 ? PathPoints[pointIndex + 1].Rotation : PathPoints[pointIndex].Rotation;
 				SetActorRotation(rot);
-				CurrentPoint = tempPathPoints[pointIndex];
-				tempPathPoints.RemoveAt(pointIndex);
+				CurrentPoint = PathPoints[pointIndex];
+				CheckStartIndex = pointIndex;
 				break;
 			}
 			else
 			{
-				CurrentPoint = tempPathPoints[pointIndex];
-				tempPathPoints.RemoveAt(pointIndex);
+				CurrentPoint = PathPoints[pointIndex];
+				CheckStartIndex = pointIndex;
 			}
 		}
 		else
@@ -131,11 +126,10 @@ void AWalker::SetWalkerTransform(const float& Time)
 			SetActorLocation(PathPoints[pointIndex].Point);
 			rot.Yaw = PathPoints[pointIndex].Rotation;
 			SetActorRotation(rot);
-			CurrentPoint = tempPathPoints[pointIndex];
-			tempPathPoints.RemoveAt(pointIndex);
+			CurrentPoint = PathPoints[pointIndex];
+			CheckStartIndex = pointIndex;
 		}
 	}
-	PathPoints = tempPathPoints;
 }
 
 bool AWalker::FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame)

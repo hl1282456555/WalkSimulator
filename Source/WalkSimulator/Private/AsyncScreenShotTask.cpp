@@ -28,7 +28,8 @@ UAsyncScreenShotTask* UAsyncScreenShotTask::TakeScreenShot(const FString& InFile
 
 void UAsyncScreenShotTask::StartCapture()
 {
-	FScreenshotRequest::OnScreenshotCaptured().AddUFunction(this, TEXT("OnScreenshotCaptured"));
+	GEngine->GameViewport->OnScreenshotCaptured().AddUObject(this, &UAsyncScreenShotTask::OnScreenshotCaptured);
+	//FScreenshotRequest::OnScreenshotCaptured().AddUObject(this, &UAsyncScreenShotTask::OnScreenshotCaptured);
 	FScreenshotRequest::RequestScreenshot(false);
 }
 
@@ -37,7 +38,7 @@ void UAsyncScreenShotTask::OnScreenshotCaptured(int32 Width, int32 Height, const
 	IImageWrapperModule& imageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
 	IImageWrapperPtr imageWrapper = imageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
 
-	if (!imageWrapper.IsValid() || !imageWrapper->SetRaw(Colors.GetData(), Colors.Num(), Resolution.X, Resolution.Y, ERGBFormat::RGBA, 8)) {
+	if (!imageWrapper.IsValid() || !imageWrapper->SetRaw(Colors.GetData(), Colors.Num() * sizeof(FColor), Resolution.X, Resolution.Y, ERGBFormat::RGBA, 8)) {
 		CapturedDelegate.ExecuteIfBound(false, TEXT(""));
 		RemoveFromRoot();
 		return;

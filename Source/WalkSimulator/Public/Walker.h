@@ -69,4 +69,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TMap<float, FAnimFrame>	AnimFrames;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int32	CheckStartIndex;
 };
