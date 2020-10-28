@@ -15,6 +15,10 @@ void AWalkSimulatorGameModeBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (!CanSpawnWalker()) {
+		return;
+	}
+
 	TArray<int32> walkerIds;
 	WalkPath.GetKeys(walkerIds);
 
@@ -59,7 +63,7 @@ void AWalkSimulatorGameModeBase::StartSimulate(const FString& DataFile)
 	UWalkSimulatorFunctionLibrary::WalkPathInterpolation(WalkPath, InterpolationTime);
 
 	UWorld* world = GEngine->GetWorldFromContextObjectChecked(this);
-	StartSimulateTime = world ? 0.f : world->GetTimeSeconds();
+	StartSimulateTime = world ? world->GetTimeSeconds() : 0.f;
 	
 	PrimaryActorTick.bCanEverTick = true;
 }

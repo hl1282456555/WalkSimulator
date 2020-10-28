@@ -22,6 +22,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StartSimulate(const FString& DataFile);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	bool CanSpawnWalker();
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TMap<int32, FPathPointList>	WalkPath;

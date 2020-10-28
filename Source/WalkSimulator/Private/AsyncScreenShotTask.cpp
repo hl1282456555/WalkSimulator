@@ -7,6 +7,7 @@
 #include "IImageWrapperModule.h"
 #include "IImageWrapper.h"
 #include "Misc/FileHelper.h"
+#include "HighResScreenshot.h"
 
 UAsyncScreenShotTask::UAsyncScreenShotTask(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -29,16 +30,21 @@ UAsyncScreenShotTask* UAsyncScreenShotTask::TakeScreenShot(const FString& InFile
 void UAsyncScreenShotTask::StartCapture()
 {
 	GEngine->GameViewport->OnScreenshotCaptured().AddUObject(this, &UAsyncScreenShotTask::OnScreenshotCaptured);
-	//FScreenshotRequest::OnScreenshotCaptured().AddUObject(this, &UAsyncScreenShotTask::OnScreenshotCaptured);
+
+	GetHighResScreenshotConfig().SetResolution(Resolution.X, Resolution.Y);
+	GetHighResScreenshotConfig().SetHDRCapture(false);
+	GetHighResScreenshotConfig().SetFilename(FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Temp/TempScreenshot.png")));
 	FScreenshotRequest::RequestScreenshot(false);
 }
 
 void UAsyncScreenShotTask::OnScreenshotCaptured(int32 Width, int32 Height, const TArray<FColor>& Colors)
 {
-	IImageWrapperModule& imageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
-	IImageWrapperPtr imageWrapper = imageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+	GEngine->GameViewport->OnScreenshotCaptured().Clear();
 
-	if (!imageWrapper.IsValid() || !imageWrapper->SetRaw(Colors.GetData(), Colors.Num() * sizeof(FColor), Width, Height, ERGBFormat::RGBA, 8)) {
+	IImageWrapperModule& imageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
+	TSharedPtr<IImageWrapper> imageWrapper = imageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+
+	if (!imageWrapper.IsValid() || !imageWrapper->SetRaw(Colors.GetData(), Colors.Num() * sizeof(FColor), Width, Height, ERGBFormat::BGRA, 8)) {
 		CapturedDelegate.ExecuteIfBound(false, TEXT(""));
 		RemoveFromRoot();
 		return;
