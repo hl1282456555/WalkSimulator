@@ -33,7 +33,6 @@ void UAsyncScreenShotTask::StartCapture()
 
 	GetHighResScreenshotConfig().SetResolution(Resolution.X, Resolution.Y);
 	GetHighResScreenshotConfig().SetHDRCapture(false);
-	GetHighResScreenshotConfig().SetFilename(FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Temp/TempScreenshot.png")));
 	FScreenshotRequest::RequestScreenshot(false);
 }
 
@@ -42,7 +41,7 @@ void UAsyncScreenShotTask::OnScreenshotCaptured(int32 Width, int32 Height, const
 	GEngine->GameViewport->OnScreenshotCaptured().Clear();
 
 	IImageWrapperModule& imageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
-	TSharedPtr<IImageWrapper> imageWrapper = imageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+	TSharedPtr<IImageWrapper> imageWrapper = imageWrapperModule.CreateImageWrapper(EImageFormat::JPEG);
 
 	if (!imageWrapper.IsValid() || !imageWrapper->SetRaw(Colors.GetData(), Colors.Num() * sizeof(FColor), Width, Height, ERGBFormat::BGRA, 8)) {
 		CapturedDelegate.ExecuteIfBound(false, TEXT(""));
@@ -50,7 +49,7 @@ void UAsyncScreenShotTask::OnScreenshotCaptured(int32 Width, int32 Height, const
 		return;
 	}
 
-	TArray64<uint8> compressedColors = imageWrapper->GetCompressed();
+	TArray64<uint8> compressedColors = imageWrapper->GetCompressed(80);
 	if (!FFileHelper::SaveArrayToFile(compressedColors, *FileName)) {
 		CapturedDelegate.ExecuteIfBound(false, TEXT(""));
 		RemoveFromRoot();
