@@ -40,7 +40,7 @@ void FEasyFFMPEGModule::ShutdownModule()
 
 void FEasyFFMPEGModule::FFmpegCallback(void*, int Level, const char* Format, va_list ArgList)
 {
-	char buffer[2048];
+	char buffer[2048]{ 0 };
 
 #if PLATFORM_WINDOWS
 	vsprintf_s(buffer, 2048, Format, ArgList);
@@ -48,7 +48,7 @@ void FEasyFFMPEGModule::FFmpegCallback(void*, int Level, const char* Format, va_
 	vsnprintf(buffer, 2048, Format, ArgList);
 #endif
 
-	FString logStr = FString::Printf(TEXT("FFMPEG - %s"), buffer);
+	FString logStr = FString::Printf(TEXT("FFMPEG - %s"), UTF8_TO_TCHAR(buffer));
 
 	switch (Level)
 	{

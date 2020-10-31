@@ -157,6 +157,11 @@ public class EasyFFMPEG : ModuleRules
 			}
 			);
 
-		LoadFFmpeg(Target);
+        if (Target.Type == TargetRules.TargetType.Editor)
+        {
+            PrivateDependencyModuleNames.Add("UnrealEd");
+        }
+
+        LoadFFmpeg(Target);
 	}
 }

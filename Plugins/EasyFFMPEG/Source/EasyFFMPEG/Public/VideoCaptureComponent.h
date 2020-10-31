@@ -53,23 +53,44 @@ public:
 	UVideoCaptureComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Video Capture")
-	void InitCapture(const FString& InVideoFilename);
+	void StartCapture(const FString& InVideoFilename);
 
 	UFUNCTION(BlueprintPure, Category = "Video Capture")
 	bool IsInitialized();
 
+	UFUNCTION(BlueprintCallable, Category = "Video Capture")
+	void CaptureThisFrame(int32 CurrentFrame);
+
+	UFUNCTION(BlueprintCallable, Category = "Video Capture")
+	void StopCapture();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	virtual void BeginDestroy() override;
+
+	bool CreateVideoFileWriter();
+
+	void DestroyVideoFileWriter();
+
+	bool InitFrameGrabber();
+
+	void ReleaseFrameGrabber();
+
+	void ReleaseContext();
+
+	void WriteFrameToFile(const TArray<uint8>& ColorBuffer, int32 CurrentFrame);
+
+	TArray<uint8> RGBToYUV420(const TArray<uint8>& RGBColor);
+
+	void EncodeVideoFrame(struct AVCodecContext* InCodecCtx, struct AVFrame* InFrame, struct AVPacket* InPacket);
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Video Capture")
-	FString CodecName;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Video Capture")
 	FString	VideoFilename;
@@ -81,8 +102,11 @@ public:
 
 private:
 
-	struct AVCodecContext* CodecContext;
 	struct AVCodec* Codec;
+	struct AVCodecContext* CodecCtx;
+	struct AVFrame* Frame;
+	struct AVPacket* Packet;
 
 	TSharedPtr<FFrameGrabber>	FrameGrabber;
+	FArchive* Writer;
 };
