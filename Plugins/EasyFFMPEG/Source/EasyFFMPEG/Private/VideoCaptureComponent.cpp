@@ -297,22 +297,9 @@ void UVideoCaptureComponent::WriteFrameToFile(const TArray<uint8>& ColorBuffer, 
 		return;
 	}
 
-	for (int32 y = 0; y < CodecCtx->height; y++)
-	{
-		for (int32 x = 0; x < CodecCtx->width; x++)
-		{
-			Frame->data[0][y * Frame->linesize[0] + x] = x + y + CurrentFrame * 3;
-		}
-	}
-
-	for (int32 y = 0; y < CodecCtx->height / 2; y++)
-	{
-		for (int32 x = 0; x < CodecCtx->width / 2; x++)
-		{
-			Frame->data[1][y * Frame->linesize[1] + x] = 128 + y + CurrentFrame * 2;
-			Frame->data[2][y * Frame->linesize[2] + x] = 64 + x + CurrentFrame * 5;
-		}
-	}
+	Frame->data[0] = (uint8_t*)ColorBuffer.GetData();
+	Frame->data[1] = (uint8_t*)&ColorBuffer[CaptureConfigs.Width * CaptureConfigs.Height];
+	Frame->data[2] = (uint8_t*)&ColorBuffer[(CaptureConfigs.Width * CaptureConfigs.Height) + (CaptureConfigs.Width * CaptureConfigs.Height * 1 / 4)];
 
 	Frame->pts = CurrentFrame;
 
