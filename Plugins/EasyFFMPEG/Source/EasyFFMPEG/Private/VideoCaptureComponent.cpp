@@ -48,14 +48,21 @@ void UVideoCaptureComponent::InitCapture(const FString& InVideoFilename)
 	CodecContext->bit_rate = CaptureConfigs.BitRate;
 	CodecContext->width = CaptureConfigs.Width;
 	CodecContext->height = CaptureConfigs.Height;
-	CodecContext->time_base = (AVRational){CaptureConfigs.FrameRate.Y, CaptureConfigs.FrameRate.X};
-	CodecContext->framerate = (AVRational){ CaptureConfigs.FrameRate.X, CaptureConfigs.FrameRate.Y};
+	CodecContext->time_base = AVRational{CaptureConfigs.FrameRate.Y, CaptureConfigs.FrameRate.X};
+	CodecContext->framerate = AVRational{ CaptureConfigs.FrameRate.X, CaptureConfigs.FrameRate.Y};
 	CodecContext->gop_size = CaptureConfigs.GopSize;
 	CodecContext->max_b_frames = CaptureConfigs.MaxBFrames;
 	CodecContext->pix_fmt = static_cast<AVPixelFormat>(CaptureConfigs.PixelFormat);
 
 	if (Codec->id == AV_CODEC_ID_H264) {
 		av_opt_set(CodecContext->priv_data, "preset", "slow", 0);
+	}
+
+	int result = avcodec_open2(CodecContext, Codec, NULL);
+	if (result < 0) {
+		UE_LOG(LogFFmpeg, Error, TEXT("InitCapture() failed: Cloud not open codec."));
+		avcodec_free_context(&CodecContext);
+		return;
 	}
 }
 

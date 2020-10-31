@@ -144,6 +144,7 @@ public class EasyFFMPEG : ModuleRules
 				"Slate",
 				"SlateCore",
 				"Projects",
+				"MovieSceneCapture",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

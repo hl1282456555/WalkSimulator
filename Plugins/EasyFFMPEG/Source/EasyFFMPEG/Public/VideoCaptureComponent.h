@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FrameGrabber.h"
 #include "Components/SceneComponent.h"
 #include "VideoCaptureComponent.generated.h"
 
@@ -80,6 +81,8 @@ public:
 
 private:
 
-	class AVCodecContext* CodecContext;
-	class AVCodec* Codec;
+	struct AVCodecContext* CodecContext;
+	struct AVCodec* Codec;
+
+	TSharedPtr<FFrameGrabber>	FrameGrabber;
 };
