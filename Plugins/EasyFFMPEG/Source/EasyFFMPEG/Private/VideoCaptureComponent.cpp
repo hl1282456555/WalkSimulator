@@ -301,7 +301,7 @@ void UVideoCaptureComponent::WriteFrameToFile(const TArray<uint8>& ColorBuffer, 
 	{
 		for (int32 x = 0; x < CodecCtx->width; x++)
 		{
-			Frame->data[0][y * Frame->linesize[0] + x] = x + y + (CurrentFrame % 25) * 3;
+			Frame->data[0][y * Frame->linesize[0] + x] = x + y + CurrentFrame * 3;
 		}
 	}
 
@@ -309,12 +309,12 @@ void UVideoCaptureComponent::WriteFrameToFile(const TArray<uint8>& ColorBuffer, 
 	{
 		for (int32 x = 0; x < CodecCtx->width / 2; x++)
 		{
-			Frame->data[1][y * Frame->linesize[1] + x] = 128 + y + (CurrentFrame % 25) * 2;
-			Frame->data[2][y * Frame->linesize[2] + x] = 64 + x + (CurrentFrame % 25) * 5;
+			Frame->data[1][y * Frame->linesize[1] + x] = 128 + y + CurrentFrame * 2;
+			Frame->data[2][y * Frame->linesize[2] + x] = 64 + x + CurrentFrame * 5;
 		}
 	}
 
-	Frame->pts = CurrentFrame % 25;
+	Frame->pts = CurrentFrame;
 
 	EncodeVideoFrame(CodecCtx, Frame, Packet);
 }
