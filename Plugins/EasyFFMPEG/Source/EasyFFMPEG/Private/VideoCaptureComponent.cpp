@@ -42,26 +42,42 @@ void UVideoCaptureComponent::StartCapture(const FString& InVideoFilename)
 	}
 
 	if (!InitFrameGrabber()) {
-		UE_LOG(LogFFmpeg, Error, TEXT("InitCapture() failed: Init frame grabber failed."));
+		UE_LOG(LogFFmpeg, Error, TEXT("Init frame grabber failed."));
 		return;
 	}
 
 	VideoFilename = InVideoFilename;
 
 	if (!CreateVideoFileWriter()) {
+		UE_LOG(LogFFmpeg, Error, TEXT("Cant create the video file '%s'."), *VideoFilename);
 		StopCapture();
-		UE_LOG(LogFFmpeg, Error, TEXT(""));
 		return;
 	}
 
-	Codec = avcodec_find_encoder_by_name("libx264");
+	DestroyVideoFileWriter();
+
+	int32 result = avformat_alloc_output_context2(&FormatCtx, nullptr, nullptr, TCHAR_TO_UTF8(*VideoFilename));
+	if (result < 0) {
+		UE_LOG(LogFFmpeg, Error, TEXT("Can not allocate format context."));
+		StopCapture();
+		return;
+	}
+
+	Codec = avcodec_find_encoder(FormatCtx->oformat->video_codec);
 	if (Codec == nullptr) {
-		UE_LOG(LogFFmpeg, Error, TEXT("InitCapture() failed: Codec 'libx264' not found."));
+		UE_LOG(LogFFmpeg, Error, TEXT("Codec not found."));
 		StopCapture();
 		return;
 	}
 
-	CodecCtx = avcodec_alloc_context3(Codec);
+	Stream = avformat_new_stream(FormatCtx, Codec);
+	if (Stream == nullptr) {
+		UE_LOG(LogFFmpeg, Error, TEXT("Can not allocate a new stream."));
+		StopCapture();
+		return;
+	}
+
+	CodecCtx = Stream->codec;
 	if (Codec == nullptr) {
 		UE_LOG(LogFFmpeg, Error, TEXT("InitCapture() failed: Cloud not allocate video codec context."));
 		StopCapture();
@@ -82,22 +98,53 @@ void UVideoCaptureComponent::StartCapture(const FString& InVideoFilename)
 	CodecCtx->framerate = {CaptureConfigs.FrameRate.X, CaptureConfigs.FrameRate.Y};
 	CodecCtx->gop_size = CaptureConfigs.GopSize;
 	CodecCtx->max_b_frames = CaptureConfigs.MaxBFrames;
-	CodecCtx->pix_fmt = AV_PIX_FMT_YUV444P;
+	
+	int32 pixLoss;
+	CodecCtx->pix_fmt = avcodec_find_best_pix_fmt_of_list(Codec->pix_fmts, AV_PIX_FMT_RGBA, true, &pixLoss);;
 
 	if (Codec->id == AV_CODEC_ID_H264) {
 		av_opt_set(CodecCtx->priv_data, "preset", "slow", 0);
 	}
 
-	int32 result = avcodec_open2(CodecCtx, Codec, nullptr);
+	if (FormatCtx->oformat->flags & AVFMT_GLOBALHEADER) {
+		CodecCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+	}
+
+	result = avcodec_open2(CodecCtx, Codec, nullptr);
 	if (result < 0) {
-		UE_LOG(LogFFmpeg, Error, TEXT("InitCapture() failed: Could not open codec."));
+		UE_LOG(LogFFmpeg, Error, TEXT("Could not open codec."));
+		StopCapture();
+		return;
+	}
+
+	result = avcodec_parameters_from_context(Stream->codecpar, CodecCtx);
+	if (result < 0) {
+		UE_LOG(LogFFmpeg, Error, TEXT("Can not fill codec params."));
+		StopCapture();
+		return;
+	}
+
+	Stream->time_base = {CaptureConfigs.FrameRate.Y, CaptureConfigs.FrameRate.X};
+
+	av_dump_format(FormatCtx, 0, TCHAR_TO_UTF8(*VideoFilename), 1);
+
+	result = avio_open(&FormatCtx->pb, TCHAR_TO_UTF8(*VideoFilename), AVIO_FLAG_WRITE);
+	if (result < 0) {
+		UE_LOG(LogFFmpeg, Error, TEXT("Cant open the file '%s'."), *VideoFilename);
+		StopCapture();
+		return;
+	}
+
+	result = avformat_write_header(FormatCtx, nullptr);
+	if (result < 0) {
+		UE_LOG(LogFFmpeg, Error, TEXT("Error ocurred when write header into file."));
 		StopCapture();
 		return;
 	}
 
 	Frame = av_frame_alloc();
 	if (Frame == nullptr) {
-		UE_LOG(LogFFmpeg, Error, TEXT("InitCapture() failed: Cloud not allocate video frame."));
+		UE_LOG(LogFFmpeg, Error, TEXT("Cloud not allocate video frame."));
 		StopCapture();
 		return;
 	}
@@ -108,7 +155,7 @@ void UVideoCaptureComponent::StartCapture(const FString& InVideoFilename)
 
 	result = av_frame_get_buffer(Frame, 0);
 	if (result < 0) {
-		UE_LOG(LogFFmpeg, Error, TEXT("InitCapture() failed: Cloud not allocate the video frame data."));
+		UE_LOG(LogFFmpeg, Error, TEXT("Cloud not allocate the video frame data."));
 		StopCapture();
 		return;
 	}
@@ -150,19 +197,11 @@ void UVideoCaptureComponent::CaptureThisFrame(int32 CurrentFrame)
 
 void UVideoCaptureComponent::StopCapture()
 {
-	if (IsInitialized() && Writer != nullptr) {
-		EncodeVideoFrame(CodecCtx, nullptr, Packet);
-
-		if (Codec->id == AV_CODEC_ID_MPEG1VIDEO || Codec->id == AV_CODEC_ID_MPEG2VIDEO) {
-			uint8_t encode[] = { 0, 0, 1, 0xb7 };
-			Writer->Serialize(encode, sizeof(encode));
-		}
-	}
-
-	CaptureState = ECaptureState::NotInit;
 	ReleaseFrameGrabber();
 	DestroyVideoFileWriter();
 	ReleaseContext();
+
+	CaptureState = ECaptureState::NotInit;
 }
 
 // Called when the game starts
@@ -258,10 +297,6 @@ bool UVideoCaptureComponent::InitFrameGrabber()
 
 void UVideoCaptureComponent::ReleaseFrameGrabber()
 {
-	if (CaptureState == ECaptureState::NotInit) {
-		return;
-	}
-
 	if (FrameGrabber.IsValid()){
 		FrameGrabber->StopCapturingFrames();
 		FrameGrabber->Shutdown();
@@ -272,9 +307,18 @@ void UVideoCaptureComponent::ReleaseFrameGrabber()
 
 void UVideoCaptureComponent::ReleaseContext()
 {
-	if (CodecCtx != nullptr) {
-		avcodec_free_context(&CodecCtx);
-		CodecCtx = nullptr;
+	if (CaptureState != ECaptureState::NotInit) {
+		EncodeVideoFrame(CodecCtx, nullptr, Packet);
+
+		av_write_trailer(FormatCtx);
+	}
+
+	if (FormatCtx != nullptr) {
+		if (FormatCtx->pb != nullptr) {
+			avio_close(FormatCtx->pb);
+		}
+		avformat_free_context(FormatCtx);
+		FormatCtx = nullptr;
 	}
 
 	if (Frame != nullptr) {
@@ -290,12 +334,6 @@ void UVideoCaptureComponent::ReleaseContext()
 
 void UVideoCaptureComponent::WriteFrameToFile(const TArray<uint8>& ColorBuffer, int32 CurrentFrame)
 {
-	int32 result = av_frame_make_writable(Frame);
-	if (result < 0) {
-		UE_LOG(LogFFmpeg, Error, TEXT("Cant make the frame writable."));
-		return;
-	}
-
 	AVFrame* rgbFrame = av_frame_alloc();
 	if (rgbFrame == nullptr) {
 		return;
@@ -310,7 +348,7 @@ void UVideoCaptureComponent::WriteFrameToFile(const TArray<uint8>& ColorBuffer, 
 		return;
 	}
 
-	result = sws_scale(scaleCtx, rgbFrame->data, rgbFrame->linesize, 0, CodecCtx->height, Frame->data, Frame->linesize);
+	int32 result = sws_scale(scaleCtx, rgbFrame->data, rgbFrame->linesize, 0, CodecCtx->height, Frame->data, Frame->linesize);
 	
 	av_frame_free(&rgbFrame);
 	sws_freeContext(scaleCtx);
@@ -334,6 +372,10 @@ void UVideoCaptureComponent::EncodeVideoFrame(struct AVCodecContext* InCodecCtx,
 
 	while(result >= 0)
 	{
+
+		InPacket->data = nullptr;
+		InPacket->size = 0;
+
 		result = avcodec_receive_packet(InCodecCtx, InPacket);
 		if (result == AVERROR(EAGAIN) || result == AVERROR_EOF) {
 			return;
@@ -343,7 +385,20 @@ void UVideoCaptureComponent::EncodeVideoFrame(struct AVCodecContext* InCodecCtx,
 			return;
 		}
 
-		Writer->Serialize(InPacket->data, InPacket->size);
+		AVRational tempRational;
+		tempRational.num = CaptureConfigs.FrameRate.Y;
+		tempRational.den = CaptureConfigs.FrameRate.X;
+
+		av_packet_rescale_ts(InPacket, tempRational, Stream->time_base);
+
+		InPacket->stream_index = Stream->index;
+
+		result = av_interleaved_write_frame(FormatCtx, InPacket);
+		if (result < 0) {
+			UE_LOG(LogFFmpeg, Error, TEXT("Error during interleaved write frame."));
+			return;
+		}
+
 		av_packet_unref(InPacket);
 	}
 }

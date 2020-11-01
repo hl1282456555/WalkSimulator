@@ -100,10 +100,12 @@ public:
 
 private:
 
+	struct AVFormatContext* FormatCtx;
 	struct AVCodec* Codec;
 	struct AVCodecContext* CodecCtx;
 	struct AVFrame* Frame;
 	struct AVPacket* Packet;
+	struct AVStream* Stream;
 
 	TSharedPtr<FFrameGrabber>	FrameGrabber;
 	FArchive* Writer;
