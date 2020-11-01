@@ -326,10 +326,6 @@ void UVideoCaptureComponent::WriteFrameToFile(const TArray<uint8>& ColorBuffer, 
 
 void UVideoCaptureComponent::EncodeVideoFrame(struct AVCodecContext* InCodecCtx, struct AVFrame* InFrame, struct AVPacket* InPacket)
 {
-	if (InFrame != nullptr) {
-		UE_LOG(LogFFmpeg, Log, TEXT("Send frame %3lld"), InFrame->pts);
-	}
-
 	int32 result = avcodec_send_frame(InCodecCtx, InFrame);
 	if (result < 0) {
 		UE_LOG(LogFFmpeg, Error, TEXT("Error sending a frame for encoding."));
@@ -347,7 +343,6 @@ void UVideoCaptureComponent::EncodeVideoFrame(struct AVCodecContext* InCodecCtx,
 			return;
 		}
 
-		UE_LOG(LogFFmpeg, Log, TEXT("Write packet %3lld(size=%5d)"), InPacket->pts, InPacket->size);
 		Writer->Serialize(InPacket->data, InPacket->size);
 		av_packet_unref(InPacket);
 	}
