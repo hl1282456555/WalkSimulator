@@ -9,7 +9,9 @@
 
 // Sets default values
 AWalker::AWalker(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+	: Super(ObjectInitializer),
+	CheckStartIndex(0),
+	AnimStartIndex(0)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -142,31 +144,32 @@ bool AWalker::FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFra
 		return false;
 	}
 
-	for (int32 frameIndex = 0; frameIndex < frameTimes.Num(); frameIndex++)
+	for (int32 frameIndex = AnimStartIndex; frameIndex < frameTimes.Num(); frameIndex++)
 	{
 		if ((frameIndex + 1) < frameTimes.Num())
 		{
 			if (frameTimes[frameIndex ] > Time)
 			{
 				CurrentAnimFrame = AnimFrames.FindRef(frameTimes[frameIndex]);
+				AnimStartIndex = frameIndex;
 				return true;
 			}
 			else if (frameTimes[frameIndex] < Time && frameTimes[frameIndex + 1] > Time)
 			{
 				float deltTime = (Time - frameTimes[frameIndex]) - (frameTimes[frameIndex + 1] - Time);
 				CurrentAnimFrame = AnimFrames.FindRef(frameTimes[deltTime > 0 ? frameIndex + 1 : frameIndex]);
-				AnimFrames.Remove(frameTimes[frameIndex]);
+				AnimStartIndex = frameIndex;
 				return true;
 			}
 			else
 			{
-				AnimFrames.Remove(frameTimes[frameIndex]);
+				AnimStartIndex = frameIndex;
 			}
 		}
 		else
 		{
 			CurrentAnimFrame = AnimFrames.FindRef(frameIndex);
-			AnimFrames.Remove(frameTimes[frameIndex]);
+			AnimStartIndex = frameIndex;
 			return true;
 		}
 	}

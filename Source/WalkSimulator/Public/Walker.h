@@ -72,4 +72,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int32	CheckStartIndex;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int32 AnimStartIndex;
 };

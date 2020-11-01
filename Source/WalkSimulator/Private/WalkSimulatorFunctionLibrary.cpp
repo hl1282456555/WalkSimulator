@@ -59,14 +59,14 @@ void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<i
 		{
 			continue;
 		}
-		tempPathPoint.Point.X = FCString::Atof(*leftString) * 10.f;
+		tempPathPoint.Point.X = FCString::Atof(*leftString) * 100.f;
 
 		if (rightString.IsEmpty())
 		{
 			continue;
 		}
 
-		tempPathPoint.Point.Y = FCString::Atof(*rightString) * 10.f;
+		tempPathPoint.Point.Y = FCString::Atof(*rightString) * 100.f;
 
 		FPathPointList pathList = WalkPath.FindRef(tempId);
 		pathList.WalkerId = tempId;
@@ -162,6 +162,29 @@ void UWalkSimulatorFunctionLibrary::WalkPathInterpolation(TMap<int32, FPathPoint
 		currentPointList.WalkerId = walkerIndex;
 		WalkPath.Add(walkers[walkerIndex], currentPointList);
 	}
+}
+
+void UWalkSimulatorFunctionLibrary::GetViewPort(TArray<FVector>& ViewPoints, UCameraComponent* Camera, float Length)
+{
+	FVector cameraLocation = Camera->GetComponentLocation();
+	FVector forwardVector = Camera->GetForwardVector();
+	FVector rightVector = Camera->GetRightVector();
+	FVector upVector = Camera->GetUpVector();
+
+	float  fov = Camera->FieldOfView;
+
+	FVector center = forwardVector * Length + cameraLocation;
+	float width = Length * FMath::Tan(PI / (180.f) * fov / 2.f);
+	float hight = width * 9.f / 16.f;
+
+	FVector tempPoint = center - rightVector * width + upVector * hight;
+	ViewPoints.Add(tempPoint);
+	tempPoint = center + rightVector * width + upVector * hight;
+	ViewPoints.Add(tempPoint);
+	tempPoint = center + rightVector * width - upVector * hight;
+	ViewPoints.Add(tempPoint);
+	tempPoint = center - rightVector * width - upVector * hight;
+	ViewPoints.Add(tempPoint);
 }
 
 float UWalkSimulatorFunctionLibrary::CalculateDelatRotation(float& StartRotation, float& EndRotation)

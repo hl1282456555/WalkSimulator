@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "WalkSimulatorStructures.h"
+#include "Camera/CameraComponent.h"
 #include "WalkSimulatorFunctionLibrary.generated.h"
 
 UCLASS()
@@ -18,6 +19,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void WalkPathInterpolation(UPARAM(Ref) TMap<int32, FPathPointList>& WalkPath, const float& DeltTime);
+
+	UFUNCTION(BlueprintCallable)
+	static void GetViewPort(TArray<FVector>& ViewPoints, UCameraComponent* Camera, float Length);
 
 private:
 	static float CalculateDelatRotation(float& StartRotation, float& EndRotation);
