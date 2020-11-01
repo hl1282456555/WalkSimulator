@@ -142,11 +142,10 @@ void UVideoCaptureComponent::CaptureThisFrame(int32 CurrentFrame)
 		rgbColor.Add(lastFrame.ColorBuffer[index].R);
 		rgbColor.Add(lastFrame.ColorBuffer[index].G);
 		rgbColor.Add(lastFrame.ColorBuffer[index].B);
+		rgbColor.Add(lastFrame.ColorBuffer[index].A);
 	}
 
-	TArray<uint8> yuvColor = RGBToYUV420(rgbColor);
-
-	WriteFrameToFile(yuvColor, CurrentFrame);
+	WriteFrameToFile(rgbColor, CurrentFrame);
 }
 
 void UVideoCaptureComponent::StopCapture()
@@ -297,51 +296,32 @@ void UVideoCaptureComponent::WriteFrameToFile(const TArray<uint8>& ColorBuffer, 
 		return;
 	}
 
-	Frame->data[0] = (uint8_t*)ColorBuffer.GetData();
-	Frame->data[1] = (uint8_t*)&ColorBuffer[CaptureConfigs.Width * CaptureConfigs.Height];
-	Frame->data[2] = (uint8_t*)&ColorBuffer[(CaptureConfigs.Width * CaptureConfigs.Height) + (CaptureConfigs.Width * CaptureConfigs.Height * 1 / 4)];
+	AVFrame* rgbFrame = av_frame_alloc();
+	if (rgbFrame == nullptr) {
+		return;
+	}
+
+	avpicture_fill((AVPicture*)rgbFrame, (uint8_t*)ColorBuffer.GetData(), AV_PIX_FMT_RGBA, CodecCtx->width, CodecCtx->height);
+
+	SwsContext* scaleCtx = sws_getContext(CodecCtx->width, CodecCtx->height, AV_PIX_FMT_RGBA, 
+										  CodecCtx->width, CodecCtx->height, AV_PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
+	if (scaleCtx == nullptr) {
+		av_frame_free(&rgbFrame);
+		return;
+	}
+
+	result = sws_scale(scaleCtx, rgbFrame->data, rgbFrame->linesize, 0, CodecCtx->height, Frame->data, Frame->linesize);
+	
+	av_frame_free(&rgbFrame);
+	sws_freeContext(scaleCtx);
 
 	Frame->pts = CurrentFrame;
 
-	EncodeVideoFrame(CodecCtx, Frame, Packet);
-}
-
-TArray<uint8> UVideoCaptureComponent::RGBToYUV420(const TArray<uint8>& RGBColor)
-{
-	TArray<uint8> yuvColor;
-	yuvColor.AddZeroed(CaptureConfigs.Width * CaptureConfigs.Height * 3 / 2);
-
-	int32 indexY = 0;
-	int32 indexU = CaptureConfigs.Width * CaptureConfigs.Height;
-	int32 indexV = indexU + (CaptureConfigs.Width * CaptureConfigs.Height * 1 / 4);
-
-	for (int32 indexH = 0; indexH < CaptureConfigs.Height; indexH++)
-	{
-		for (int32 indexW = 0; indexW < CaptureConfigs.Width; indexW++)
-		{
-			uint8 r, g, b;
-			r = RGBColor[CaptureConfigs.Width * indexH * 3];
-			g = RGBColor[CaptureConfigs.Width * indexH * 3 + 1];
-			b = RGBColor[CaptureConfigs.Width * indexH * 3 + 2];
-
-			uint8 y, u, v;
-			y = (uint8)((66 * r + 129 * g + 25 * b + 128) >> 8) + 16;
-			u = (uint8)((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128;
-			v = (uint8)((112 * r - 94 * g - 18 * b + 128) >> 8) + 128;
-
-			yuvColor[indexY++] = FMath::Clamp<uint8>(y, 0, 255);
-			if (indexH % 2 == 0 && indexW % 2 == 0) {
-				yuvColor[indexU++] = FMath::Clamp<uint8>(u, 0, 255);
-			}
-			else {
-				if (indexW % 2 == 0) {
-					yuvColor[indexV++] = FMath::Clamp<uint8>(v, 0, 255);
-				}
-			}
-		}
+	if (result != CodecCtx->height) {
+		return;
 	}
 
-	return yuvColor;
+	EncodeVideoFrame(CodecCtx, Frame, Packet);
 }
 
 void UVideoCaptureComponent::EncodeVideoFrame(struct AVCodecContext* InCodecCtx, struct AVFrame* InFrame, struct AVPacket* InPacket)

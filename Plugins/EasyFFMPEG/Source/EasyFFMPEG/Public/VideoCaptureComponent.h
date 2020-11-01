@@ -82,8 +82,6 @@ protected:
 
 	void WriteFrameToFile(const TArray<uint8>& ColorBuffer, int32 CurrentFrame);
 
-	TArray<uint8> RGBToYUV420(const TArray<uint8>& RGBColor);
-
 	void EncodeVideoFrame(struct AVCodecContext* InCodecCtx, struct AVFrame* InFrame, struct AVPacket* InPacket);
 
 public:	
