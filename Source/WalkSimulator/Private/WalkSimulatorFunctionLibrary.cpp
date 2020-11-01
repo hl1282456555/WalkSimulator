@@ -3,6 +3,10 @@
 
 #include "WalkSimulatorFunctionLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Runtime/Core/Public/Modules/ModuleManager.h"
+#include "Runtime/Core/Public/Misc/FileHelper.h"
+#include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
+#include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
 
 void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<int32, FPathPointList>& WalkPath)
 {
@@ -185,6 +189,64 @@ void UWalkSimulatorFunctionLibrary::GetViewPort(TArray<FVector>& ViewPoints, UCa
 	ViewPoints.Add(tempPoint);
 	tempPoint = center - rightVector * width - upVector * hight;
 	ViewPoints.Add(tempPoint);
+}
+
+TArray<FString> UWalkSimulatorFunctionLibrary::ReturnOpenFiles()
+{
+	IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+	TArray<FString> OpenFileNames;
+
+	FString ExtensionStr;
+
+	ExtensionStr = TEXT("JSON files | *.json");
+	DesktopPlatform->OpenFileDialog(nullptr, TEXT("Load Camera Config"), FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()), TEXT(""), *ExtensionStr, EFileDialogFlags::None, OpenFileNames);
+	if (OpenFileNames.Num() > 0)
+	{
+		FString FullPath = FPaths::ConvertRelativePathToFull(OpenFileNames[0]);
+		OpenFileNames.Empty();
+		OpenFileNames.Add(FullPath);
+	}
+	return OpenFileNames;
+}
+
+FString UWalkSimulatorFunctionLibrary::ReturnOpenDir()
+{
+	IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+
+	FString SaveFilePath;
+	DesktopPlatform->OpenDirectoryDialog(nullptr, TEXT("Save Camera Config"), FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()), SaveFilePath);
+
+	return SaveFilePath;
+}
+
+bool UWalkSimulatorFunctionLibrary::SaveStringToFile(FString InString, FString FilePath)
+{
+	return FFileHelper::SaveStringToFile(InString, *FilePath);
+}
+
+FTransform UWalkSimulatorFunctionLibrary::ConvertStringToTransform(FString InString)
+{
+	FString Left, Right;
+	FVector Location;
+	FRotator Rotation;
+	FVector Scale;
+	InString.Split(TEXT("Translation:"), &Left, &Right, ESearchCase::IgnoreCase, ESearchDir::FromStart);
+	Right.Split(TEXT("Rotation:"), &Left, &Right, ESearchCase::IgnoreCase, ESearchDir::FromStart);
+	Location.InitFromString(Left);
+
+	Left.Empty();
+	Right.Split(TEXT("Scale"), &Left, &Right, ESearchCase::IgnoreCase, ESearchDir::FromStart);
+	Scale.InitFromString(Right);
+
+	Rotation.InitFromString(Left);
+
+	FTransform transform;
+
+	transform.SetTranslation(Location);
+	transform.SetRotation(Rotation.Quaternion());
+	transform.SetScale3D(Scale);
+
+	return transform;
 }
 
 float UWalkSimulatorFunctionLibrary::CalculateDelatRotation(float& StartRotation, float& EndRotation)
