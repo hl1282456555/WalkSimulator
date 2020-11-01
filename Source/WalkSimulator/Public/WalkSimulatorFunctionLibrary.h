@@ -23,6 +23,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void GetViewPort(TArray<FVector>& ViewPoints, UCameraComponent* Camera, float Length);
 
+	UFUNCTION(BlueprintCallable)
+	static TArray<FString> ReturnOpenFiles();
+
+	UFUNCTION(BlueprintCallable)
+	static FString ReturnOpenDir();
+
+	UFUNCTION(BlueprintCallable)
+	static bool SaveStringToFile(FString InString, FString FilePath);
+
+	UFUNCTION(BlueprintCallable)
+	static FTransform ConvertStringToTransform(FString InString);
+
 private:
 	static float CalculateDelatRotation(float& StartRotation, float& EndRotation);
 
