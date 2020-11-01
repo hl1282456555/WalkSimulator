@@ -82,7 +82,7 @@ void UVideoCaptureComponent::StartCapture(const FString& InVideoFilename)
 	CodecCtx->framerate = {CaptureConfigs.FrameRate.X, CaptureConfigs.FrameRate.Y};
 	CodecCtx->gop_size = CaptureConfigs.GopSize;
 	CodecCtx->max_b_frames = CaptureConfigs.MaxBFrames;
-	CodecCtx->pix_fmt = AV_PIX_FMT_YUV420P;
+	CodecCtx->pix_fmt = AV_PIX_FMT_YUV444P;
 
 	if (Codec->id == AV_CODEC_ID_H264) {
 		av_opt_set(CodecCtx->priv_data, "preset", "slow", 0);
@@ -304,7 +304,7 @@ void UVideoCaptureComponent::WriteFrameToFile(const TArray<uint8>& ColorBuffer, 
 	avpicture_fill((AVPicture*)rgbFrame, (uint8_t*)ColorBuffer.GetData(), AV_PIX_FMT_RGBA, CodecCtx->width, CodecCtx->height);
 
 	SwsContext* scaleCtx = sws_getContext(CodecCtx->width, CodecCtx->height, AV_PIX_FMT_RGBA, 
-										  CodecCtx->width, CodecCtx->height, AV_PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
+										  CodecCtx->width, CodecCtx->height, CodecCtx->pix_fmt, SWS_BILINEAR, nullptr, nullptr, nullptr);
 	if (scaleCtx == nullptr) {
 		av_frame_free(&rgbFrame);
 		return;
