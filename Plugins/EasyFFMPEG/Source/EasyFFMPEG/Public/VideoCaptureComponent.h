@@ -59,7 +59,7 @@ public:
 	bool IsInitialized();
 
 	UFUNCTION(BlueprintCallable, Category = "Video Capture")
-	void CaptureThisFrame(int32 CurrentFrame);
+	bool CaptureThisFrame(int32 CurrentFrame);
 
 	UFUNCTION(BlueprintCallable, Category = "Video Capture")
 	void StopCapture();

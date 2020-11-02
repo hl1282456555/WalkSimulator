@@ -99,8 +99,8 @@ void UVideoCaptureComponent::StartCapture(const FString& InVideoFilename)
 	CodecCtx->gop_size = CaptureConfigs.GopSize;
 	CodecCtx->max_b_frames = CaptureConfigs.MaxBFrames;
 	
-	int32 pixLoss;
-	CodecCtx->pix_fmt = avcodec_find_best_pix_fmt_of_list(Codec->pix_fmts, AV_PIX_FMT_RGBA, true, &pixLoss);;
+	/*int32 pixLoss;*/
+	CodecCtx->pix_fmt = AV_PIX_FMT_YUV444P/*avcodec_find_best_pix_fmt_of_list(Codec->pix_fmts, AV_PIX_FMT_RGBA, true, &pixLoss)*/;
 
 	if (Codec->id == AV_CODEC_ID_H264) {
 		av_opt_set(CodecCtx->priv_data, "preset", "slow", 0);
@@ -168,17 +168,17 @@ bool UVideoCaptureComponent::IsInitialized()
 	return CaptureState > ECaptureState::Initialized;
 }
 
-void UVideoCaptureComponent::CaptureThisFrame(int32 CurrentFrame)
+bool UVideoCaptureComponent::CaptureThisFrame(int32 CurrentFrame)
 {
 	if (CaptureState == ECaptureState::NotInit || !FrameGrabber.IsValid()) {
-		return;
+		return false;
 	}
 
 	FrameGrabber->CaptureThisFrame(FFramePayloadPtr());
 	TArray<FCapturedFrameData> frames = FrameGrabber->GetCapturedFrames();
 
 	if (!frames.IsValidIndex(0)) {
-		return;
+		return false;
 	}
 
 	FCapturedFrameData& lastFrame = frames.Last();
@@ -193,6 +193,8 @@ void UVideoCaptureComponent::CaptureThisFrame(int32 CurrentFrame)
 	}
 
 	WriteFrameToFile(rgbColor, CurrentFrame);
+
+	return true;
 }
 
 void UVideoCaptureComponent::StopCapture()
