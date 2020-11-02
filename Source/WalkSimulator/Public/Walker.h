@@ -39,6 +39,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetWireFrame(TArray<FVector2D>& WireFrame);
 
+	UFUNCTION(BlueprintCallable)
+	bool IsWalkerInViewport();
+
 private:
 	bool FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame);
 

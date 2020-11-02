@@ -67,3 +67,27 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	TMap<FName, FTransform>	BoneDatas;
 };
+
+USTRUCT(BlueprintType)
+struct FWalkerSimulateData
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite)
+	int32 WalkerId;
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FVector2D> WireFramePoints;
+};
+
+USTRUCT(BlueprintType)
+struct FCameraCaptureData
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite)
+	FString CameraName;
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FWalkerSimulateData> WalkerData;
+};

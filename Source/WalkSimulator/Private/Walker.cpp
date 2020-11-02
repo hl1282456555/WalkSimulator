@@ -203,6 +203,24 @@ void AWalker::GetWireFrame(TArray<FVector2D>& WireFrame)
 	//WireFrame.Add(FVector2D(Min.X, Min.Y) / scale);
 }
 
+bool AWalker::IsWalkerInViewport()
+{
+	TArray<FVector2D> points = WireFramePoints;
+	//TODO添加模型中心点
+	FVector2D viewportSize = UWidgetLayoutLibrary::GetViewportSize(this);
+	bool inViewport = false;
+
+	for (auto point : points)
+	{
+		if (point.X > 0 && point.Y > 0 && point.X < viewportSize.X && point.Y < viewportSize.Y)
+		{
+			inViewport = true;
+		}
+	}
+
+	return inViewport;
+}
+
 bool AWalker::FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame)
 {
 	TArray<float> frameTimes;
