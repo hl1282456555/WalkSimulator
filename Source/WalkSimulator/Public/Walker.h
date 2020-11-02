@@ -37,7 +37,7 @@ public:
 	void SetWalkerTransform(const float& Time);
 
 	UFUNCTION(BlueprintCallable)
-	void GetWireFrame(TArray<FLine2D>& WireFrame);
+	void GetWireFrame(TArray<FVector2D>& WireFrame);
 
 private:
 	bool FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame);
@@ -78,4 +78,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int32 AnimStartIndex;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TArray<FVector2D> WireFramePoints;
 };

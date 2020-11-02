@@ -6,6 +6,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/PoseableMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "UMG/Public/Blueprint/WidgetLayoutLibrary.h"
 
 // Sets default values
 AWalker::AWalker(const FObjectInitializer& ObjectInitializer)
@@ -43,6 +45,8 @@ void AWalker::BeginPlay()
 void AWalker::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	GetWireFrame(WireFramePoints);
 }
 
 void AWalker::CaptureAnimFrame(const float& StartRecordTime)
@@ -134,12 +138,69 @@ void AWalker::SetWalkerTransform(const float& Time)
 	}
 }
 
-void AWalker::GetWireFrame(TArray<FLine2D>& WireFrame)
+void AWalker::GetWireFrame(TArray<FVector2D>& WireFrame)
 {
 	FVector origin = SkeletalMesh->Bounds.Origin;
 	FVector extent = SkeletalMesh->Bounds.BoxExtent;
 
+	TArray<FVector> box;
 
+	box.Add(origin + FVector(extent.X, extent.Y, extent.Z));
+	box.Add(origin + FVector(extent.X, -extent.Y, extent.Z));
+	box.Add(origin + FVector(-extent.X, -extent.Y, extent.Z));
+	box.Add(origin + FVector(-extent.X, extent.Y, extent.Z));
+
+	box.Add(origin + FVector(extent.X, extent.Y, -extent.Z));
+	box.Add(origin + FVector(extent.X, -extent.Y, -extent.Z));
+	box.Add(origin + FVector(-extent.X, -extent.Y, -extent.Z));
+	box.Add(origin + FVector(-extent.X, extent.Y, -extent.Z));
+
+	FVector2D Min;
+	FVector2D Max;
+	APlayerController* playerController = UGameplayStatics::GetPlayerController(this, 0);
+	if (playerController == nullptr)
+	{
+		return;
+	}
+
+	for (int32 index = 0; index < box.Num(); index++)
+	{
+		FVector2D screenLocation;
+		playerController->ProjectWorldLocationToScreen(box[index], screenLocation, true);
+		if (index == 0)
+		{
+			Min = screenLocation;
+			Max = screenLocation;
+		}
+		else
+		{
+			if (screenLocation.X > Max.X)
+			{
+				Max.X = screenLocation.X;
+			}
+			if (screenLocation.X < Min.X)
+			{
+				Min.X = screenLocation.X;
+			}
+			if (screenLocation.Y > Max.Y)
+			{
+				Max.Y = screenLocation.Y;
+			}
+			if (screenLocation.Y < Min.Y)
+			{
+				Min.Y = screenLocation.Y;
+			}
+		}
+	}
+
+	float scale = UWidgetLayoutLibrary::GetViewportScale(this);
+
+	WireFrame.Empty();
+	WireFrame.Add(FVector2D(Min.X, Min.Y) / scale);
+	WireFrame.Add(FVector2D(Max.X, Min.Y) / scale);
+	WireFrame.Add(FVector2D(Max.X, Max.Y) / scale);
+	WireFrame.Add(FVector2D(Min.X, Max.Y) / scale);
+	//WireFrame.Add(FVector2D(Min.X, Min.Y) / scale);
 }
 
 bool AWalker::FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame)
