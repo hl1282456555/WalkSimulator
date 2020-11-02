@@ -36,6 +36,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetWalkerTransform(const float& Time);
 
+	UFUNCTION(BlueprintCallable)
+	void GetWireFrame(TArray<FLine2D>& WireFrame);
+
 private:
 	bool FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame);
 

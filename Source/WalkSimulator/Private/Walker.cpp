@@ -134,6 +134,14 @@ void AWalker::SetWalkerTransform(const float& Time)
 	}
 }
 
+void AWalker::GetWireFrame(TArray<FLine2D>& WireFrame)
+{
+	FVector origin = SkeletalMesh->Bounds.Origin;
+	FVector extent = SkeletalMesh->Bounds.BoxExtent;
+
+
+}
+
 bool AWalker::FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame)
 {
 	TArray<float> frameTimes;
