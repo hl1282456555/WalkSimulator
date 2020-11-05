@@ -86,8 +86,17 @@ struct FCameraCaptureData
 	GENERATED_BODY()
 public:
 	UPROPERTY(BlueprintReadWrite)
-	FString CameraName;
+	TArray<FWalkerSimulateData> WalkerData;
+};
+
+USTRUCT(BlueprintType)
+struct FWalkerCaptureData
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite)
+	FVector WalkerLocation;
 
 	UPROPERTY(BlueprintReadWrite)
-	TArray<FWalkerSimulateData> WalkerData;
+	TMap<FString, FVector> BoneLocation;
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "WalkSimulatorStructures.h"
+#include "VaRestJsonObject.h"
 #include "Walker.generated.h"
 
 UCLASS()
@@ -42,6 +43,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsWalkerInViewport();
 
+	UFUNCTION(BlueprintCallable)
+	void CaptureWalkerFrameData(const int32& Frame);
+
+	UFUNCTION(BlueprintCallable)
+	UVaRestJsonObject* ExportWalkerFrameData();
+
 private:
 	bool FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame);
 
@@ -64,6 +71,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FString MeshName;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FString> BoneNames;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float SimulateTime;
 
@@ -84,4 +94,13 @@ public:
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TArray<FVector2D> WireFramePoints;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TMap<int32, FWalkerCaptureData> WalkerFrameData;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	UVaRestJsonObject* WalkerCaptureJosn;
+
+private:
+	TArray<UVaRestJsonObject*> WalkerFrameJosn;
 };

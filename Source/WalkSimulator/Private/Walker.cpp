@@ -8,6 +8,7 @@
 #include "Components/PoseableMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "UMG/Public/Blueprint/WidgetLayoutLibrary.h"
+#include "VaRestSubsystem.h"
 
 // Sets default values
 AWalker::AWalker(const FObjectInitializer& ObjectInitializer)
@@ -39,6 +40,9 @@ void AWalker::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	UVaRestSubsystem* varestSubsystem = GEngine->GetEngineSubsystem<UVaRestSubsystem>();
+	WalkerCaptureJosn = varestSubsystem->ConstructVaRestJsonObject();
+	WalkerCaptureJosn->SetIntegerField("walkerId", WalkerId);
 }
 
 // Called every frame
@@ -219,6 +223,28 @@ bool AWalker::IsWalkerInViewport()
 	}
 
 	return inViewport;
+}
+
+void AWalker::CaptureWalkerFrameData(const int32& Frame)
+{
+	UVaRestSubsystem* varestSubsystem = GEngine->GetEngineSubsystem<UVaRestSubsystem>();
+	UVaRestJsonObject* frameJson = varestSubsystem->ConstructVaRestJsonObject();
+
+	FVector aa;
+
+	frameJson->SetIntegerField("frame", Frame);
+	frameJson->SetStringField("walkerLocation", GetActorLocation().ToString());
+	for (auto boneName : BoneNames)
+	{
+		frameJson->SetStringField(boneName, PoseableMesh->GetSocketLocation(FName(*boneName)).ToString());
+	}
+	WalkerFrameJosn.Add(frameJson);
+}
+
+UVaRestJsonObject* AWalker::ExportWalkerFrameData()
+{
+	WalkerCaptureJosn->SetObjectArrayField("frameData", WalkerFrameJosn);
+	return WalkerCaptureJosn;
 }
 
 bool AWalker::FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame)
