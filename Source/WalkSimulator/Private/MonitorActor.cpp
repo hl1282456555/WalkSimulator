@@ -24,7 +24,7 @@ AMonitorActor::AMonitorActor()
 	CollisionSphere->SetupAttachment(MonitorMesh);
 
 	ViewMesh = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ViewMesh"));
-	ViewMesh->SetupAttachment(ViewMesh);
+	ViewMesh->SetupAttachment(MonitorMesh);
 
 	ViewLength = 1000.0f;
 }
