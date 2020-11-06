@@ -56,12 +56,12 @@ void AMonitorActor::RefreshViewMesh(int32 SliceNum)
 
 	FVector startPoint = viewPoints[3];
 
-	for (int32 vIndex = 0; vIndex < SliceNum + 1; vIndex++)
+	for (int32 vIndex = 0; vIndex < SliceNum; vIndex++)
 	{
 		TArray<FVector> sectionPoints;
 		sectionPoints.Add(startPoint);
 		TArray<int32> sectionTriangles;
-		for (int32 hIndex = 0; hIndex < SliceNum + 1; hIndex++)
+		for (int32 hIndex = 0; hIndex < SliceNum; hIndex++)
 		{
 
 			FVector endPoint = viewPoints[3] + GetActorRightVector() * (stephLen * hIndex);
@@ -79,9 +79,6 @@ void AMonitorActor::RefreshViewMesh(int32 SliceNum)
 			}
 
 			sectionPoints.Add(hitResult.ImpactPoint);
-			if (hIndex == SliceNum) {
-				continue;
-			}
 			sectionTriangles.Add(0);
 			sectionTriangles.Add(hIndex);
 			sectionTriangles.Add(hIndex + 1);

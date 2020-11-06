@@ -40,9 +40,15 @@ public:
 	float ViewLength;
 
 public:
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USceneCaptureComponent2D* Camera;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* MonitorMesh;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USphereComponent* CollisionSphere;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UProceduralMeshComponent* ViewMesh;
 };
