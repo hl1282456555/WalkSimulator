@@ -47,44 +47,54 @@ void AMonitorActor::RefreshViewMesh(int32 SliceNum)
 	if (!viewPoints.IsValidIndex(3)) {
 		return;
 	}
-	
+
 	float hLen = (viewPoints[3] - viewPoints[2]).Size();
 	float stephLen = hLen / SliceNum;
 
 	float vLen = (viewPoints[3] - viewPoints[0]).Size();
 	float stepvLen = vLen / SliceNum;
 
-	FVector startPoint = viewPoints[3];
+	FVector startPoint = GetActorLocation();
 
 	for (int32 vIndex = 0; vIndex < SliceNum; vIndex++)
 	{
 		TArray<FVector> sectionPoints;
-		sectionPoints.Add(startPoint);
+		sectionPoints.Add(FVector::ZeroVector);
 		TArray<int32> sectionTriangles;
+		TArray<FVector> sectionNormal;
+		sectionNormal.Add(FVector(0.0f, 0.0f, 1.0f));
 		for (int32 hIndex = 0; hIndex < SliceNum; hIndex++)
 		{
 
 			FVector endPoint = viewPoints[3] + GetActorRightVector() * (stephLen * hIndex);
-			endPoint.Z += vIndex * stepvLen;
+			endPoint += GetActorUpVector() * vIndex * stepvLen;
 
-			FCollisionQueryParams params(FName(TEXT("BlockAll")), true, this);
-			params.bTraceComplex = true;
+			FCollisionQueryParams params;
+			params.bTraceComplex = false;
 			params.bReturnPhysicalMaterial = false;
+			params.MobilityType = EQueryMobilityType::Any;
+			params.AddIgnoredActor(this);
 			
 			FHitResult hitResult(ForceInit);
 
-			if (!GetWorld()->LineTraceSingleByChannel(hitResult, startPoint, endPoint, ECollisionChannel::ECC_GameTraceChannel2, params)) {
-				sectionPoints.Add(endPoint);
-				continue;
+			if (!GetWorld()->LineTraceSingleByChannel(hitResult, startPoint, endPoint, ECollisionChannel::ECC_GameTraceChannel3, params)) {
+				sectionPoints.Add(GetActorTransform().InverseTransformPosition(endPoint));
+			}
+			else {
+				sectionPoints.Add(GetActorTransform().InverseTransformPosition(hitResult.ImpactPoint));
 			}
 
-			sectionPoints.Add(hitResult.ImpactPoint);
-			sectionTriangles.Add(0);
-			sectionTriangles.Add(hIndex);
-			sectionTriangles.Add(hIndex + 1);
+			sectionNormal.Add(FVector(0.0f, 0.0f, 1.0f));
 		}
 
-		ViewMesh->CreateMeshSection(vIndex, sectionPoints, sectionTriangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FVector2D>(), TArray<FVector2D>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+		for (int32 pointIndex = 1; pointIndex < sectionPoints.Num() - 1; pointIndex++)
+		{
+			sectionTriangles.Add(pointIndex + 1);
+			sectionTriangles.Add(pointIndex);
+			sectionTriangles.Add(0);
+		}
+
+		ViewMesh->CreateMeshSection(vIndex, sectionPoints, sectionTriangles, sectionNormal, TArray<FVector2D>(), TArray<FVector2D>(), TArray<FVector2D>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), true);
 	}
 }
 
