@@ -22,7 +22,7 @@ public:
 	void SetMonitorFOV(float NewFOV);
 
 	UFUNCTION(BlueprintCallable)
-	void RefreshViewMesh(int32 SliceNum);
+	TArray<AActor*> RefreshViewMesh(int32 VSliceNum, int32 HSliceNum);
 
 protected:
 	// Called when the game starts or when spawned

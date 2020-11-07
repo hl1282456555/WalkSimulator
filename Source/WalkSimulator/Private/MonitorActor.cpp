@@ -39,31 +39,33 @@ void AMonitorActor::SetMonitorFOV(float NewFOV)
 	Camera->FOVAngle = NewFOV;
 }
 
-void AMonitorActor::RefreshViewMesh(int32 SliceNum)
+TArray<AActor*> AMonitorActor::RefreshViewMesh(int32 VSliceNum, int32 HSliceNum)
 {
+
+	TArray<AActor*> hittedActors;
 	ViewMesh->ClearAllMeshSections();
 
 	TArray<FVector> viewPoints = CalculateViewPoints();
 	if (!viewPoints.IsValidIndex(3)) {
-		return;
+		return hittedActors;
 	}
 
 	float hLen = (viewPoints[3] - viewPoints[2]).Size();
-	float stephLen = hLen / SliceNum;
+	float stephLen = hLen / HSliceNum;
 
 	float vLen = (viewPoints[3] - viewPoints[0]).Size();
-	float stepvLen = vLen / SliceNum;
+	float stepvLen = vLen / VSliceNum;
 
 	FVector startPoint = GetActorLocation();
 
-	for (int32 vIndex = 0; vIndex < SliceNum; vIndex++)
+	for (int32 vIndex = 0; vIndex < VSliceNum + 1; vIndex++)
 	{
 		TArray<FVector> sectionPoints;
 		sectionPoints.Add(FVector::ZeroVector);
 		TArray<int32> sectionTriangles;
 		TArray<FVector> sectionNormal;
 		sectionNormal.Add(FVector(0.0f, 0.0f, 1.0f));
-		for (int32 hIndex = 0; hIndex < SliceNum; hIndex++)
+		for (int32 hIndex = 0; hIndex < HSliceNum + 1; hIndex++)
 		{
 
 			FVector endPoint = viewPoints[3] + GetActorRightVector() * (stephLen * hIndex);
@@ -84,6 +86,15 @@ void AMonitorActor::RefreshViewMesh(int32 SliceNum)
 				sectionPoints.Add(GetActorTransform().InverseTransformPosition(hitResult.ImpactPoint));
 			}
 
+			FCollisionObjectQueryParams objectParams;
+			objectParams.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel4);
+			if (GetWorld()->LineTraceSingleByObjectType(hitResult, startPoint, endPoint, objectParams, params)) {
+				AActor* hittedActor = hitResult.GetActor();
+				if (hittedActor != nullptr) {
+					hittedActors.AddUnique(hitResult.GetActor());
+				}
+			}
+
 			sectionNormal.Add(FVector(0.0f, 0.0f, 1.0f));
 		}
 
@@ -92,10 +103,20 @@ void AMonitorActor::RefreshViewMesh(int32 SliceNum)
 			sectionTriangles.Add(pointIndex + 1);
 			sectionTriangles.Add(pointIndex);
 			sectionTriangles.Add(0);
+
+			sectionTriangles.Add(0);
+			sectionTriangles.Add(pointIndex);
+			sectionTriangles.Add(pointIndex + 1);
 		}
 
 		ViewMesh->CreateMeshSection(vIndex, sectionPoints, sectionTriangles, sectionNormal, TArray<FVector2D>(), TArray<FVector2D>(), TArray<FVector2D>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), true);
 	}
+
+	if (hittedActors.IsValidIndex(0)) {
+		hittedActors.Add(this);
+	}
+
+	return hittedActors;
 }
 
 // Called when the game starts or when spawned
