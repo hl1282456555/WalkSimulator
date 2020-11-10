@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Widgets/Notifications/SNotificationList.h"
 #include "WalkSimulatorStructures.generated.h"
 
 /**
@@ -99,4 +100,13 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	TMap<FString, FVector> BoneLocation;
+};
+
+USTRUCT(BlueprintType)
+struct FNotificationHandle
+{
+	GENERATED_BODY()
+public:
+
+	TSharedPtr<SNotificationItem>	Handle;
 };

@@ -35,6 +35,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static FTransform ConvertStringToTransform(FString InString);
 
+	UFUNCTION(BlueprintCallable)
+	static FNotificationHandle AddNewNotification(FText InContent);
+
+	UFUNCTION(BlueprintPure)
+	static bool IsValid(const FNotificationHandle& InHandle);
+
+	UFUNCTION(BlueprintCallable)
+	static void UpdateNotification(const FNotificationHandle& InHandle, FText InContent);
+
+	UFUNCTION(BlueprintCallable)
+	static void RemoveNotification(UPARAM(ref)FNotificationHandle& InHandle);
+
+	UFUNCTION(BlueprintCallable)
+	static void SetNotificationCompletion(UPARAM(ref)FNotificationHandle& InHandle, FText InContent, bool bSuccess);
+
 private:
 	static float CalculateDelatRotation(float& StartRotation, float& EndRotation);
 

@@ -8,6 +8,8 @@
 #include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
 
+#include "Framework/Notifications/NotificationManager.h"
+
 void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<int32, FPathPointList>& WalkPath)
 {
 	if (!FPaths::FileExists(FilePath))
@@ -247,6 +249,57 @@ FTransform UWalkSimulatorFunctionLibrary::ConvertStringToTransform(FString InStr
 	transform.SetScale3D(Scale);
 
 	return transform;
+}
+
+FNotificationHandle UWalkSimulatorFunctionLibrary::AddNewNotification(FText InContent)
+{
+	FSlateNotificationManager& manager = FSlateNotificationManager::Get();
+
+	FNotificationInfo info(InContent);
+	info.bUseLargeFont = true;
+	info.bUseThrobber = true;
+	info.bFireAndForget = false;
+	info.bUseSuccessFailIcons = true;
+	
+	FNotificationHandle resultHandle;
+	resultHandle.Handle = manager.AddNotification(info);
+
+	return resultHandle;
+}
+
+bool UWalkSimulatorFunctionLibrary::IsValid(const FNotificationHandle& InHandle)
+{
+	return InHandle.Handle.IsValid();
+}
+
+void UWalkSimulatorFunctionLibrary::UpdateNotification(const FNotificationHandle& InHandle, FText InContent)
+{
+	if (!InHandle.Handle.IsValid()) {
+		return;
+	}
+
+	InHandle.Handle->SetText(InContent);
+	InHandle.Handle->SetCompletionState(SNotificationItem::CS_Pending);
+}
+
+void UWalkSimulatorFunctionLibrary::RemoveNotification(FNotificationHandle& InHandle)
+{
+	if (!InHandle.Handle.IsValid()) {
+		return;
+	}
+
+	InHandle.Handle->Fadeout();
+	InHandle.Handle.Reset();
+}
+
+void UWalkSimulatorFunctionLibrary::SetNotificationCompletion(FNotificationHandle& InHandle, FText InContent, bool bSuccess)
+{
+	if (!InHandle.Handle.IsValid()) {
+		return;
+	}
+
+	InHandle.Handle->SetText(InContent);
+	InHandle.Handle->SetCompletionState(bSuccess ? SNotificationItem::CS_Success : SNotificationItem::CS_Fail);
 }
 
 float UWalkSimulatorFunctionLibrary::CalculateDelatRotation(float& StartRotation, float& EndRotation)
