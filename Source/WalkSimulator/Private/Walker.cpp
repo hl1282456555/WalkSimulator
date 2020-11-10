@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "UMG/Public/Blueprint/WidgetLayoutLibrary.h"
 #include "VaRestSubsystem.h"
+#include "../WalkSimulatorGameModeBase.h"
 
 // Sets default values
 AWalker::AWalker(const FObjectInitializer& ObjectInitializer)
@@ -43,6 +44,8 @@ void AWalker::BeginPlay()
 	UVaRestSubsystem* varestSubsystem = GEngine->GetEngineSubsystem<UVaRestSubsystem>();
 	WalkerCaptureJosn = varestSubsystem->ConstructVaRestJsonObject();
 	WalkerCaptureJosn->SetIntegerField("walkerId", WalkerId);
+
+	SpawnTime = UKismetSystemLibrary::GetGameTimeInSeconds(this);
 }
 
 // Called every frame
@@ -102,6 +105,8 @@ void AWalker::SetWalkerTransform(const float& Time)
 		return;
 	}
 	
+	SetHidden(CheckStartIndex >= PathPoints.Num());
+
 	for (int32 pointIndex = CheckStartIndex; pointIndex < PathPoints.Num(); pointIndex++)
 	{
 		FRotator rot(FRotator::ZeroRotator);
@@ -139,6 +144,10 @@ void AWalker::SetWalkerTransform(const float& Time)
 			CurrentPoint = PathPoints[pointIndex];
 			CheckStartIndex = pointIndex;
 		}
+	}
+
+	if (CheckStartIndex == PathPoints.Num() - 1) {
+		CheckStartIndex++;
 	}
 }
 
@@ -239,6 +248,19 @@ void AWalker::CaptureWalkerFrameData(const int32& Frame)
 		frameJson->SetStringField(boneName, PoseableMesh->GetSocketLocation(FName(*boneName)).ToString());
 	}
 	WalkerFrameJosn.Add(frameJson);
+}
+
+void AWalker::RefreshVisibility(float FrameTime)
+{
+	AWalkSimulatorGameModeBase* gameMode = Cast<AWalkSimulatorGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (gameMode == nullptr) {
+		return;
+	}
+
+	float spawnTimeInRecord = SpawnTime - gameMode->StartSimulateTime;
+	float distanceTime = FMath::Abs(FrameTime - spawnTimeInRecord);
+
+	SetHidden(distanceTime < 0.0f);
 }
 
 UVaRestJsonObject* AWalker::ExportWalkerFrameData()

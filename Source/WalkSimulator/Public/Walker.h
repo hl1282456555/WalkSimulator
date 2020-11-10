@@ -47,6 +47,9 @@ public:
 	void CaptureWalkerFrameData(const int32& Frame);
 
 	UFUNCTION(BlueprintCallable)
+	void RefreshVisibility(float FrameTime);
+
+	UFUNCTION(BlueprintCallable)
 	UVaRestJsonObject* ExportWalkerFrameData();
 
 private:
@@ -76,6 +79,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float SimulateTime;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float SpawnTime;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FPathPoint CurrentPoint;
