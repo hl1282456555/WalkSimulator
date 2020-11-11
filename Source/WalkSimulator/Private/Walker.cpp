@@ -258,7 +258,7 @@ void AWalker::RefreshVisibility(float FrameTime)
 	}
 
 	float spawnTimeInRecord = SpawnTime - gameMode->StartSimulateTime;
-	float distanceTime = FMath::Abs(FrameTime - spawnTimeInRecord);
+	float distanceTime = FrameTime - spawnTimeInRecord;
 
 	GetRootComponent()->SetHiddenInGame(distanceTime < 0.0f, true);
 }
