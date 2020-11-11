@@ -251,6 +251,11 @@ FTransform UWalkSimulatorFunctionLibrary::ConvertStringToTransform(FString InStr
 	return transform;
 }
 
+bool UWalkSimulatorFunctionLibrary::WriteStringToFile(FString String, FString FileName)
+{
+	return FFileHelper::SaveStringToFile(String, *FileName);
+}
+
 FNotificationHandle UWalkSimulatorFunctionLibrary::AddNewNotification(FText InContent)
 {
 	FSlateNotificationManager& manager = FSlateNotificationManager::Get();

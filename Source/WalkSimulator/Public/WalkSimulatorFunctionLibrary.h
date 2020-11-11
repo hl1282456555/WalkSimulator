@@ -36,6 +36,9 @@ public:
 	static FTransform ConvertStringToTransform(FString InString);
 
 	UFUNCTION(BlueprintCallable)
+	static bool WriteStringToFile(FString String, FString FileName);
+
+	UFUNCTION(BlueprintCallable)
 	static FNotificationHandle AddNewNotification(FText InContent);
 
 	UFUNCTION(BlueprintPure)
