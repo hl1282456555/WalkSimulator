@@ -80,7 +80,7 @@ protected:
 
 	void ReleaseContext();
 
-	void WriteFrameToFile(const TArray<uint8>& ColorBuffer, int32 CurrentFrame);
+	void WriteFrameToFile(const TArray<FColor>& ColorBuffer, int32 CurrentFrame);
 
 	void EncodeVideoFrame(struct AVCodecContext* InCodecCtx, struct AVFrame* InFrame, struct AVPacket* InPacket);
 

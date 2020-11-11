@@ -183,16 +183,16 @@ bool UVideoCaptureComponent::CaptureThisFrame(int32 CurrentFrame)
 
 	FCapturedFrameData& lastFrame = frames.Last();
 
-	TArray<uint8> rgbColor;
-	for (int32 index = 0; index < lastFrame.ColorBuffer.Num(); index++)
-	{
-		rgbColor.Add(lastFrame.ColorBuffer[index].R);
-		rgbColor.Add(lastFrame.ColorBuffer[index].G);
-		rgbColor.Add(lastFrame.ColorBuffer[index].B);
-		rgbColor.Add(lastFrame.ColorBuffer[index].A);
-	}
+	//TArray<uint8> rgbColor;
+	//for (int32 index = 0; index < lastFrame.ColorBuffer.Num(); index++)
+	//{
+	//	rgbColor.Add(lastFrame.ColorBuffer[index].R);
+	//	rgbColor.Add(lastFrame.ColorBuffer[index].G);
+	//	rgbColor.Add(lastFrame.ColorBuffer[index].B);
+	//	rgbColor.Add(lastFrame.ColorBuffer[index].A);
+	//}
 
-	WriteFrameToFile(rgbColor, CurrentFrame);
+	WriteFrameToFile(lastFrame.ColorBuffer, CurrentFrame);
 
 	return true;
 }
@@ -334,16 +334,16 @@ void UVideoCaptureComponent::ReleaseContext()
 	}
 }
 
-void UVideoCaptureComponent::WriteFrameToFile(const TArray<uint8>& ColorBuffer, int32 CurrentFrame)
+void UVideoCaptureComponent::WriteFrameToFile(const TArray<FColor>& ColorBuffer, int32 CurrentFrame)
 {
 	AVFrame* rgbFrame = av_frame_alloc();
 	if (rgbFrame == nullptr) {
 		return;
 	}
 
-	avpicture_fill((AVPicture*)rgbFrame, (uint8_t*)ColorBuffer.GetData(), AV_PIX_FMT_RGBA, CodecCtx->width, CodecCtx->height);
+	avpicture_fill((AVPicture*)rgbFrame, (uint8_t*)ColorBuffer.GetData(), AV_PIX_FMT_BGRA, CodecCtx->width, CodecCtx->height);
 
-	SwsContext* scaleCtx = sws_getContext(CodecCtx->width, CodecCtx->height, AV_PIX_FMT_RGBA, 
+	SwsContext* scaleCtx = sws_getContext(CodecCtx->width, CodecCtx->height, AV_PIX_FMT_BGRA,
 										  CodecCtx->width, CodecCtx->height, CodecCtx->pix_fmt, SWS_BILINEAR, nullptr, nullptr, nullptr);
 	if (scaleCtx == nullptr) {
 		av_frame_free(&rgbFrame);
