@@ -105,7 +105,7 @@ void AWalker::SetWalkerTransform(const float& Time)
 		return;
 	}
 	
-	SetHidden(CheckStartIndex >= PathPoints.Num());
+	GetRootComponent()->SetHiddenInGame(CheckStartIndex >= PathPoints.Num(), true);
 
 	for (int32 pointIndex = CheckStartIndex; pointIndex < PathPoints.Num(); pointIndex++)
 	{
@@ -260,7 +260,7 @@ void AWalker::RefreshVisibility(float FrameTime)
 	float spawnTimeInRecord = SpawnTime - gameMode->StartSimulateTime;
 	float distanceTime = FMath::Abs(FrameTime - spawnTimeInRecord);
 
-	SetHidden(distanceTime < 0.0f);
+	GetRootComponent()->SetHiddenInGame(distanceTime < 0.0f, true);
 }
 
 UVaRestJsonObject* AWalker::ExportWalkerFrameData()
