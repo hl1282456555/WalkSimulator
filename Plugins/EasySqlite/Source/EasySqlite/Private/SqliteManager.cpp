@@ -12,6 +12,8 @@ USqliteManager* USqliteManager::GetSqliteManager()
     {
         SqliteManager = NewObject<USqliteManager>();
 		SqliteManager->AddToRoot();
+		FEasySqliteModule* easySqliteModule = FModuleManager::GetModulePtr<FEasySqliteModule>(FName("EasySqlite"));
+		easySqliteModule->SetSqliteManager(SqliteManager);
     }
     return SqliteManager;
 }
