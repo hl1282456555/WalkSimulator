@@ -5,7 +5,7 @@
 
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "ProceduralMeshComponent.h"
 
 // Sets default values
@@ -22,8 +22,8 @@ AMonitorActor::AMonitorActor()
 	Camera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("MonitorCamera"));
 	Camera->SetupAttachment(GetRootComponent());
 
-	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
-	CollisionSphere->SetupAttachment(GetRootComponent());
+	CollisionCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollision"));
+	CollisionCapsule->SetupAttachment(GetRootComponent());
 
 	ViewMesh = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ViewMesh"));
 	ViewMesh->SetupAttachment(GetRootComponent());

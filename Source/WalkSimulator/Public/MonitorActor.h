@@ -47,7 +47,7 @@ public:
 	class UStaticMeshComponent* MonitorMesh;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class USphereComponent* CollisionSphere;
+	class UCapsuleComponent* CollisionCapsule;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UProceduralMeshComponent* ViewMesh;
