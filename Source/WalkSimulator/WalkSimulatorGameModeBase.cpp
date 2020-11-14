@@ -4,6 +4,7 @@
 #include "WalkSimulatorGameModeBase.h"
 #include "WalkSimulatorFunctionLibrary.h"
 #include "Walker.h"
+#include "Kismet/GameplayStatics.h"
 
 AWalkSimulatorGameModeBase::AWalkSimulatorGameModeBase()
 	:InterpolationTime(0.04)
@@ -15,7 +16,7 @@ void AWalkSimulatorGameModeBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (!CanSpawnWalker()) {
+	if (!CanSpawnWalker() || !IsSimulating) {
 		return;
 	}
 
@@ -65,5 +66,17 @@ void AWalkSimulatorGameModeBase::StartSimulate(const FString& DataFile)
 	UWorld* world = GEngine->GetWorldFromContextObjectChecked(this);
 	StartSimulateTime = world ? world->GetTimeSeconds() : 0.f;
 	
-	PrimaryActorTick.bCanEverTick = true;
+	IsSimulating = true;
+}
+
+void AWalkSimulatorGameModeBase::StopSimulate()
+{
+	IsSimulating = false;
+
+	TArray<AActor*> walkers;
+	UGameplayStatics::GetAllActorsOfClass(this, AWalker::StaticClass(), walkers);
+	for (auto walker : walkers)
+	{
+		walker->Destroy();
+	}
 }

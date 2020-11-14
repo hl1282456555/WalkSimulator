@@ -31,11 +31,6 @@ void FEasySqliteModule::ShutdownModule()
 	// we call this function before unloading the module.
 }
 
-void FEasySqliteModule::SetSqliteManager(USqliteManager* InSqliteManager)
-{
-	SqliteManager = InSqliteManager;
-}
-
 #undef LOCTEXT_NAMESPACE
 	
 IMPLEMENT_MODULE(FEasySqliteModule, EasySqlite)

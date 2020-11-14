@@ -22,6 +22,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StartSimulate(const FString& DataFile);
 
+	UFUNCTION(BlueprintCallable)
+	void StopSimulate();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	bool CanSpawnWalker();
 
@@ -37,4 +40,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float InterpolationTime;
+
+private:
+	bool IsSimulating;
 };

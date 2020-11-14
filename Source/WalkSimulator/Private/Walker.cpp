@@ -148,8 +148,18 @@ void AWalker::SetWalkerTransform(const float& Time)
 
 void AWalker::GetWireFrame(TArray<FVector2D>& WireFrame)
 {
-	FVector origin = SkeletalMesh->Bounds.Origin;
-	FVector extent = SkeletalMesh->Bounds.BoxExtent;
+	FVector origin, extent; 
+
+	if (SkeletalMesh->GetVisibleFlag())
+	{
+		origin = SkeletalMesh->Bounds.Origin;
+		extent = SkeletalMesh->Bounds.BoxExtent;
+	}
+	else
+	{
+		origin = PoseableMesh->Bounds.Origin;
+		extent = PoseableMesh->Bounds.BoxExtent;
+	}
 
 	TArray<FVector> box;
 

@@ -45,9 +45,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SqliteManager")
 	bool CreateTable(FString DataBasePath, FString TableName, TMap<FString, EDataBaseValueTypes> Data, bool PrimaryKeyAutoIncrement);
 
-	//If value type is text in data base, the value 
+	//If value type is text in data base, the value must append ''(eg.'leo')
 	UFUNCTION(BlueprintCallable, Category = "SqliteManager")
 	bool InsertItem(FString DataBasePath, FString TableName, TMap<FString, FString> Data);
 
+	UFUNCTION(BlueprintCallable, Category = "SqliteManager")
 	void CloseDataBase();
 };

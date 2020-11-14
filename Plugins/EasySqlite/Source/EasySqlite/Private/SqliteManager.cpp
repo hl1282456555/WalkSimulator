@@ -9,9 +9,6 @@ USqliteManager* USqliteManager::SqliteManager = nullptr;
 void USqliteManager::BeginDestroy()
 {
 	CloseDataBase();
-	FEasySqliteModule* easySqliteModule = FModuleManager::GetModulePtr<FEasySqliteModule>(FName("EasySqlite"));
-	easySqliteModule->SetSqliteManager(nullptr);
-	Super::BeginDestroy();
 }
 
 USqliteManager* USqliteManager::GetSqliteManager()
@@ -20,7 +17,7 @@ USqliteManager* USqliteManager::GetSqliteManager()
     {
         SqliteManager = NewObject<USqliteManager>();
 		FEasySqliteModule* easySqliteModule = FModuleManager::GetModulePtr<FEasySqliteModule>(FName("EasySqlite"));
-		easySqliteModule->SetSqliteManager(SqliteManager);
+		SqliteManager->AddToRoot();
     }
     return SqliteManager;
 }

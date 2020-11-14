@@ -16,9 +16,4 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
-	void SetSqliteManager(USqliteManager* InSqliteManager);
-
-private:
-	UPROPERTY()
-	USqliteManager* SqliteManager;
 };
