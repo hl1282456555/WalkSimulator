@@ -29,7 +29,10 @@ void FEasySqliteModule::ShutdownModule()
 {
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 	// we call this function before unloading the module.
-	SqliteManager->RemoveFromRoot();
+	if (SqliteManager != nullptr)
+	{
+		SqliteManager->CloseDataBase();
+	}
 }
 
 void FEasySqliteModule::SetSqliteManager(USqliteManager* InSqliteManager)

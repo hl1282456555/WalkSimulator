@@ -19,5 +19,6 @@ public:
 	void SetSqliteManager(USqliteManager* InSqliteManager);
 
 private:
+	UPROPERTY()
 	USqliteManager* SqliteManager;
 };

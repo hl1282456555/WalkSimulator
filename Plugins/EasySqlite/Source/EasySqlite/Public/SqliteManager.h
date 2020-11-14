@@ -46,4 +46,6 @@ public:
 	//If value type is text in data base, the value 
 	UFUNCTION(BlueprintCallable, Category = "SqliteManager")
 	bool InsertItem(FString DataBasePath, FString TableName, TMap<FString, FString> Data);
+
+	void CloseDataBase();
 };

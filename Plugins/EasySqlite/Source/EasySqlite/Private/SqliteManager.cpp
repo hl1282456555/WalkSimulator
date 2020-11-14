@@ -11,7 +11,6 @@ USqliteManager* USqliteManager::GetSqliteManager()
     if (SqliteManager == nullptr)
     {
         SqliteManager = NewObject<USqliteManager>();
-		SqliteManager->AddToRoot();
 		FEasySqliteModule* easySqliteModule = FModuleManager::GetModulePtr<FEasySqliteModule>(FName("EasySqlite"));
 		easySqliteModule->SetSqliteManager(SqliteManager);
     }
@@ -140,5 +139,15 @@ bool USqliteManager::InsertItem(FString DataBasePath, FString TableName, TMap<FS
 	{
 		UE_LOG(LogTemp, Warning, TEXT("INSERT SUCCESS!"));
 		return true;
+	}
+}
+
+void USqliteManager::CloseDataBase()
+{
+	TArray<sqlite3*> dataBaseList;
+	DataBaseTables.GenerateValueArray(dataBaseList);
+	for (auto database : dataBaseList)
+	{
+		sqlite3_close(database);
 	}
 }
