@@ -91,6 +91,7 @@ void AWalker::SetBonePose(const float& Time)
 		boneTransform = CurrentAnimFrame.BoneDatas.FindRef(boneName);
 		PoseableMesh->SetBoneTransformByName(boneName, boneTransform, EBoneSpaces::ComponentSpace);
 	}
+	return;
 }
 
 void AWalker::SetWalkerTransform(const float& Time)
