@@ -9,6 +9,7 @@ USqliteManager* USqliteManager::SqliteManager = nullptr;
 void USqliteManager::BeginDestroy()
 {
 	CloseDataBase();
+	Super::BeginDestroy();
 }
 
 USqliteManager* USqliteManager::GetSqliteManager()
