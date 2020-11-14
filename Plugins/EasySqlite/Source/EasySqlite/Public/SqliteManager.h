@@ -41,7 +41,7 @@ public:
 	bool OpenDataBase(FString DataBasePath);
 
 	UFUNCTION(BlueprintCallable, Category = "SqliteManager")
-	bool CreateTable(FString DataBasePath, FString TableName, TMap<EDataBaseValueTypes, FString> Data, bool PrimaryKeyAutoIncrement);
+	bool CreateTable(FString DataBasePath, FString TableName, TMap<FString, EDataBaseValueTypes> Data, bool PrimaryKeyAutoIncrement);
 
 	//If value type is text in data base, the value 
 	UFUNCTION(BlueprintCallable, Category = "SqliteManager")

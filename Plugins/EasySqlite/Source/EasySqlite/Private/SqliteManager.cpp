@@ -36,7 +36,7 @@ bool USqliteManager::OpenDataBase(FString DataBasePath)
     return false;
 }
 
-bool USqliteManager::CreateTable(FString DataBasePath, FString TableName, TMap<EDataBaseValueTypes, FString> Data, bool PrimaryKeyAutoIncrement)
+bool USqliteManager::CreateTable(FString DataBasePath, FString TableName, TMap<FString, EDataBaseValueTypes> Data, bool PrimaryKeyAutoIncrement)
 {
 	sqlite3* pTable = DataBaseTables.FindRef(DataBasePath);
 	if (pTable == nullptr)
@@ -50,17 +50,23 @@ bool USqliteManager::CreateTable(FString DataBasePath, FString TableName, TMap<E
 	}
 
 	FString tableData("");
-	TArray<EDataBaseValueTypes> dataKeys;
+	//TArray<EDataBaseValueTypes> dataKeys;
+	TArray<FString> dataKeys;
 	Data.GetKeys(dataKeys);
 
 	UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EDataBaseValueTypes"), true);
 
 	for (int32 index = 0; index < dataKeys.Num(); index++)
 	{
-		FString CurDataTypeStr(EnumPtr->GetNameByValue((int)dataKeys[index]).ToString());
-		tableData += CurDataTypeStr;
+		EDataBaseValueTypes currentType = Data.FindRef(dataKeys[index]);
+		FString enumType = EnumPtr->GetNameByValue((int)currentType).ToString();
+		FString CurDataTypeStr;
+		FString lefitStr;
+		enumType.Split("::", &lefitStr, &CurDataTypeStr, ESearchCase::IgnoreCase, ESearchDir::FromStart);
+		
+		tableData += dataKeys[index];
 		tableData += " ";
-		tableData += Data.FindRef(dataKeys[index]);
+		tableData += CurDataTypeStr;
 		
 		if (index == 0)
 		{
@@ -123,7 +129,7 @@ bool USqliteManager::InsertItem(FString DataBasePath, FString TableName, TMap<FS
     FString sql = FString::Printf(TEXT("insert into %s(%s) values(%s)"), *TableName, *keyNames, *values);
 
 	char* cErrMessage;
-	int32 nRes = sqlite3_exec(pTable, TCHAR_TO_ANSI(*sql), 0, 0, &cErrMessage);
+	int32 nRes = sqlite3_exec(pTable, TCHAR_TO_UTF8(*sql), 0, 0, &cErrMessage);
 	if (nRes != SQLITE_OK)
 	{
 		FString str(cErrMessage);
