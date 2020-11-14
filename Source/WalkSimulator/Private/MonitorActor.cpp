@@ -14,17 +14,19 @@ AMonitorActor::AMonitorActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootScene"));
+
 	MonitorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MonitorMesh"));
 	MonitorMesh->SetupAttachment(GetRootComponent());
 
 	Camera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("MonitorCamera"));
-	Camera->SetupAttachment(MonitorMesh);
+	Camera->SetupAttachment(GetRootComponent());
 
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
-	CollisionSphere->SetupAttachment(MonitorMesh);
+	CollisionSphere->SetupAttachment(GetRootComponent());
 
 	ViewMesh = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ViewMesh"));
-	ViewMesh->SetupAttachment(MonitorMesh);
+	ViewMesh->SetupAttachment(GetRootComponent());
 
 	ViewLength = 1000.0f;
 }
