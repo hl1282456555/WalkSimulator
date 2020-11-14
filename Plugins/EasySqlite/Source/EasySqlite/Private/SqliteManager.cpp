@@ -6,6 +6,14 @@
 
 USqliteManager* USqliteManager::SqliteManager = nullptr;
 
+void USqliteManager::BeginDestroy()
+{
+	CloseDataBase();
+	FEasySqliteModule* easySqliteModule = FModuleManager::GetModulePtr<FEasySqliteModule>(FName("EasySqlite"));
+	easySqliteModule->SetSqliteManager(nullptr);
+	Super::BeginDestroy();
+}
+
 USqliteManager* USqliteManager::GetSqliteManager()
 {
     if (SqliteManager == nullptr)
@@ -150,4 +158,5 @@ void USqliteManager::CloseDataBase()
 	{
 		sqlite3_close(database);
 	}
+	DataBaseTables.Empty();
 }

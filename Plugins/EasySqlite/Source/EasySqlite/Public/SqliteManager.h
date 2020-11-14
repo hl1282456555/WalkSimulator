@@ -29,6 +29,8 @@ private:
 	static USqliteManager* SqliteManager;
 
 	TMap<FString, sqlite3*> DataBaseTables;
+
+	virtual void BeginDestroy() override;
 	
 private:
 	USqliteManager() {};
