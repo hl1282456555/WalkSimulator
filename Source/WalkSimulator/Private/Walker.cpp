@@ -100,7 +100,11 @@ void AWalker::SetWalkerTransform(const float& Time)
 		return;
 	}
 	
-	GetRootComponent()->SetHiddenInGame(CheckStartIndex >= PathPoints.Num(), true);
+	if (CheckStartIndex >= PathPoints.Num())
+	{
+		GetRootComponent()->SetHiddenInGame(true, true);
+		return;
+	}
 
 	for (int32 pointIndex = CheckStartIndex; pointIndex < PathPoints.Num(); pointIndex++)
 	{
@@ -150,7 +154,7 @@ void AWalker::GetWireFrame(TArray<FVector2D>& WireFrame)
 {
 	FVector origin, extent; 
 
-	if (SkeletalMesh->GetVisibleFlag())
+	if (PoseableMesh->bHiddenInGame)
 	{
 		origin = SkeletalMesh->Bounds.Origin;
 		extent = SkeletalMesh->Bounds.BoxExtent;
@@ -249,7 +253,8 @@ void AWalker::RefreshVisibility(float FrameTime)
 	float spawnTimeInRecord = SpawnTime - gameMode->StartSimulateTime;
 	float distanceTime = FrameTime - spawnTimeInRecord;
 
-	GetRootComponent()->SetHiddenInGame(distanceTime < 0.0f, true);
+	//GetRootComponent()->SetHiddenInGame(distanceTime < 0.0f, true);
+	PoseableMesh->SetHiddenInGame(distanceTime < 0.0f, false);
 }
 
 bool AWalker::FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame)
