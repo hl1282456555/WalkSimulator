@@ -158,3 +158,25 @@ void USqliteManager::CloseDataBase()
 	}
 	DataBaseTables.Empty();
 }
+
+void USqliteManager::BeginInsert(FString DataBasePath)
+{
+	sqlite3* pTable = DataBaseTables.FindRef(DataBasePath);
+	if (pTable == nullptr)
+	{
+		return;
+	}
+	sqlite3_exec(pTable, "begin", 0, 0, 0);
+	sqlite3_exec(pTable, "PRAGMA synchronous = OFF; ", 0, 0, 0);
+}
+
+void USqliteManager::CommitChange(FString DataBasePath)
+{
+	sqlite3* pTable = DataBaseTables.FindRef(DataBasePath);
+	if (pTable == nullptr)
+	{
+		return;
+	}
+
+	sqlite3_exec(pTable, "commit;", 0, 0, 0);
+}

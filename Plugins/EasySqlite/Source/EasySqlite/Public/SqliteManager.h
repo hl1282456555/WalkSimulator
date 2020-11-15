@@ -51,4 +51,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "SqliteManager")
 	void CloseDataBase();
+
+	UFUNCTION(BlueprintCallable, Category = "SqliteManager")
+	void BeginInsert(FString DataBasePath);
+
+	UFUNCTION(BlueprintCallable, Category = "SqliteManager")
+	void CommitChange(FString DataBasePath);
 };
