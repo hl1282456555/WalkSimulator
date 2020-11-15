@@ -163,10 +163,10 @@ void AWalker::GetWireFrame(TArray<FVector2D>& WireFrame)
 
 	TArray<FVector> box;
 
-	box.Add(origin + FVector(extent.X, extent.Y, extent.Z));
-	box.Add(origin + FVector(extent.X, -extent.Y, extent.Z));
-	box.Add(origin + FVector(-extent.X, -extent.Y, extent.Z));
-	box.Add(origin + FVector(-extent.X, extent.Y, extent.Z));
+	box.Add(origin + FVector(extent.X, extent.Y, extent.Z + 10.f));
+	box.Add(origin + FVector(extent.X, -extent.Y, extent.Z + 10.f));
+	box.Add(origin + FVector(-extent.X, -extent.Y, extent.Z + 10.f));
+	box.Add(origin + FVector(-extent.X, extent.Y, extent.Z + 10.f));
 
 	box.Add(origin + FVector(extent.X, extent.Y, -extent.Z));
 	box.Add(origin + FVector(extent.X, -extent.Y, -extent.Z));

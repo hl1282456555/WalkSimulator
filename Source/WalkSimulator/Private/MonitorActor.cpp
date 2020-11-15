@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "ProceduralMeshComponent.h"
+#include "Materials/MaterialInterface.h"
 
 // Sets default values
 AMonitorActor::AMonitorActor()
@@ -112,6 +113,7 @@ TArray<AActor*> AMonitorActor::RefreshViewMesh(int32 VSliceNum, int32 HSliceNum)
 		}
 
 		ViewMesh->CreateMeshSection(vIndex, sectionPoints, sectionTriangles, sectionNormal, TArray<FVector2D>(), TArray<FVector2D>(), TArray<FVector2D>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+		ViewMesh->SetMaterial(vIndex, ViewMeshMaterial);
 	}
 
 	if (hittedActors.IsValidIndex(0)) {

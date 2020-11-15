@@ -39,6 +39,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ViewLength;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UMaterial* ViewMeshMaterial;
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USceneCaptureComponent2D* Camera;
