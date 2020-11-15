@@ -93,7 +93,7 @@ void FEasyFFMPEGModule::InitLibraryHandles()
 	zlibName = TEXT("zlib1.dll");
 #endif
 
-	ZlibHandle = LoadDependencyLibrary(zlibName);
+	//ZlibHandle = LoadDependencyLibrary(zlibName);
 	LibMP3LameHandle = LoadDependencyLibrary(TEXT("libmp3lame.dll"));
 	LibX264Handle = LoadDependencyLibrary(TEXT("libx264-157.dll"));
 	AVUtilHandle = LoadDependencyLibrary(TEXT("avutil-56.dll"));
@@ -112,7 +112,7 @@ void FEasyFFMPEGModule::InitLibraryHandles()
 		AVFormatHandle == nullptr || AVISynthHandle == nullptr || AVResampleHandle == nullptr ||
 		AVUtilHandle == nullptr || LibMP3LameHandle == nullptr || LibX264Handle == nullptr ||
 		PostProcHandle == nullptr || SWResampleHandle == nullptr || SWScaleHandle == nullptr ||
-		WAVPackHandle == nullptr || ZlibHandle == nullptr) {
+		WAVPackHandle == nullptr /*|| ZlibHandle == nullptr*/) {
 		
 		UE_LOG(LogFFmpeg, Error, TEXT("Load dependecy dll failed."));
 		return;
@@ -190,10 +190,10 @@ void FEasyFFMPEGModule::UnloadHandledLibraries()
 		LibMP3LameHandle = nullptr;
 	}
 
-	if (ZlibHandle != nullptr) {
-		FPlatformProcess::FreeDllHandle(ZlibHandle);
-		ZlibHandle = nullptr;
-	}
+	//if (ZlibHandle != nullptr) {
+	//	FPlatformProcess::FreeDllHandle(ZlibHandle);
+	//	ZlibHandle = nullptr;
+	//}
 }
 
 void* FEasyFFMPEGModule::LoadDependencyLibrary(const FString& DLLName)

@@ -70,7 +70,7 @@ public class EasyFFMPEG : ModuleRules
                     Path.Combine(LibrariesPath, "swresample.lib"),
                     Path.Combine(LibrariesPath, "swscale.lib"),
                     Path.Combine(LibrariesPath, "wavpackdll.lib"),
-                    Path.Combine(LibrariesPath, zlibLibName),
+                    //Path.Combine(LibrariesPath, zlibLibName),
                 }
 			);
 
@@ -91,7 +91,7 @@ public class EasyFFMPEG : ModuleRules
 				"swresample-3.dll",
 				"swscale-5.dll",
 				"wavpackdll.dll",
-				zlibDllName,
+				//zlibDllName,
 			};
 
 			foreach (string dllName in dllNames)

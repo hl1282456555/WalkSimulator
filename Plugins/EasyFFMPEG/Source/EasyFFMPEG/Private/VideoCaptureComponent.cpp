@@ -24,7 +24,7 @@ extern "C" {
 
 // Sets default values for this component's properties
 UVideoCaptureComponent::UVideoCaptureComponent()
-	: CaptureState(ECaptureState::NotInit)
+	: CaptureState(EMovieCaptureState::NotInit)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -160,17 +160,17 @@ void UVideoCaptureComponent::StartCapture(const FString& InVideoFilename)
 		return;
 	}
 
-	CaptureState = ECaptureState::Initialized;
+	CaptureState = EMovieCaptureState::Initialized;
 }
 
 bool UVideoCaptureComponent::IsInitialized()
 {
-	return CaptureState > ECaptureState::Initialized;
+	return CaptureState > EMovieCaptureState::Initialized;
 }
 
 bool UVideoCaptureComponent::CaptureThisFrame(int32 CurrentFrame)
 {
-	if (CaptureState == ECaptureState::NotInit || !FrameGrabber.IsValid()) {
+	if (CaptureState == EMovieCaptureState::NotInit || !FrameGrabber.IsValid()) {
 		return false;
 	}
 
@@ -203,7 +203,7 @@ void UVideoCaptureComponent::StopCapture()
 	DestroyVideoFileWriter();
 	ReleaseContext();
 
-	CaptureState = ECaptureState::NotInit;
+	CaptureState = EMovieCaptureState::NotInit;
 }
 
 // Called when the game starts
@@ -309,7 +309,7 @@ void UVideoCaptureComponent::ReleaseFrameGrabber()
 
 void UVideoCaptureComponent::ReleaseContext()
 {
-	if (CaptureState != ECaptureState::NotInit) {
+	if (CaptureState != EMovieCaptureState::NotInit) {
 		EncodeVideoFrame(CodecCtx, nullptr, Packet);
 
 		av_write_trailer(FormatCtx);

@@ -17,8 +17,8 @@
 	"Modules": [
 		{
 			"Name": "EasyFFMPEG",
-			"Type": "RuntimeNoCommandlet",
-			"LoadingPhase": "Default",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
 			"WhitelistPlatforms": [ "Win64" ]
 		}
 	]

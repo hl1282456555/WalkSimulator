@@ -8,7 +8,7 @@
 #include "VideoCaptureComponent.generated.h"
 
 UENUM(BlueprintType)
-enum class ECaptureState : uint8
+enum class EMovieCaptureState : uint8
 {
 	NotInit = 0,
 	Initialized,
@@ -43,7 +43,7 @@ public:
 	int32	PixelFormat;
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( meta=(BlueprintSpawnableComponent) )
 class EASYFFMPEG_API UVideoCaptureComponent : public USceneComponent
 {
 	GENERATED_BODY()
@@ -96,7 +96,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Video Capture")
 	FCaptureConfigs	CaptureConfigs;
 
-	ECaptureState CaptureState;
+	EMovieCaptureState CaptureState;
 
 private:
 
