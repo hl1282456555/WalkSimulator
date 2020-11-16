@@ -17,7 +17,6 @@ USqliteManager* USqliteManager::GetSqliteManager()
     if (SqliteManager == nullptr)
     {
         SqliteManager = NewObject<USqliteManager>();
-		FEasySqliteModule* easySqliteModule = FModuleManager::GetModulePtr<FEasySqliteModule>(FName("EasySqlite"));
 		SqliteManager->AddToRoot();
     }
     return SqliteManager;
@@ -35,6 +34,7 @@ bool USqliteManager::OpenDataBase(FString DataBasePath)
 	else
 	{
 		DataBaseTables.Add(DataBasePath, pDataBase);
+		sqlite3_exec(pDataBase, "PRAGMA synchronous = OFF; ", 0, 0, 0);
 		UE_LOG(LogTemp, Warning, TEXT("OPEN DATABASE SUCC!"));
 		return true;
 	}
@@ -167,7 +167,7 @@ void USqliteManager::BeginInsert(FString DataBasePath)
 		return;
 	}
 	sqlite3_exec(pTable, "begin", 0, 0, 0);
-	sqlite3_exec(pTable, "PRAGMA synchronous = OFF; ", 0, 0, 0);
+	//sqlite3_exec(pTable, "PRAGMA synchronous = OFF; ", 0, 0, 0);
 }
 
 void USqliteManager::CommitChange(FString DataBasePath)
