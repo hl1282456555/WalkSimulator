@@ -94,4 +94,7 @@ public:
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TArray<FVector2D> WireFramePoints;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector MeshExtent;
 };

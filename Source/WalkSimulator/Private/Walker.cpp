@@ -154,16 +154,9 @@ void AWalker::GetWireFrame(TArray<FVector2D>& WireFrame)
 {
 	FVector origin, extent; 
 
-	if (PoseableMesh->Bounds.BoxExtent.Size() < SkeletalMesh->Bounds.BoxExtent.Size())
-	{
-		origin = PoseableMesh->Bounds.Origin;
-		extent = PoseableMesh->Bounds.BoxExtent;
-	}
-	else
-	{
-		origin = SkeletalMesh->Bounds.Origin;
-		extent = SkeletalMesh->Bounds.BoxExtent;
-	}
+	extent = MeshExtent.RotateAngleAxis(GetActorRotation().Yaw, FVector(0, 0, 1.0f));
+	origin = GetActorLocation();
+	origin.Z += extent.Z;
 
 	TArray<FVector> box;
 
