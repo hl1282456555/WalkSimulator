@@ -38,10 +38,10 @@ public:
 	void SetWalkerTransform(const float& Time);
 
 	UFUNCTION(BlueprintCallable)
-	void GetWireFrame(TArray<FVector2D>& WireFrame);
+	void GetWireFrame(TArray<FVector2D>& WireFrame, float FrameTime, bool bCapturing = true);
 
 	UFUNCTION(BlueprintCallable)
-	bool IsWalkerInViewport();
+	bool IsWalkerInViewport(const TArray<FVector2D>& BoundsPoints);
 
 	UFUNCTION(BlueprintCallable)
 	void RefreshVisibility(float FrameTime);
@@ -87,14 +87,11 @@ public:
 	TMap<float, FAnimFrame>	AnimFrames;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	TMap<float, FBoxSphereBounds> BoundsFrames;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int32	CheckStartIndex;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int32 AnimStartIndex;
-
-	UPROPERTY(Transient, BlueprintReadOnly)
-	TArray<FVector2D> WireFramePoints;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector MeshExtent;
 };

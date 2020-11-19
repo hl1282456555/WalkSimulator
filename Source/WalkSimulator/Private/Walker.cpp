@@ -47,8 +47,6 @@ void AWalker::BeginPlay()
 void AWalker::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	GetWireFrame(WireFramePoints);
 }
 
 void AWalker::CaptureAnimFrame(const float& StartRecordTime)
@@ -67,6 +65,8 @@ void AWalker::CaptureAnimFrame(const float& StartRecordTime)
 	}
 
 	AnimFrames.Add(animFrame.FrameTime, animFrame);
+
+	BoundsFrames.Add(time, SkeletalMesh->Bounds);
 }
 
 void AWalker::InitWalker(USkeletalMesh* Mesh, UClass* AnimClass)
@@ -150,13 +150,37 @@ void AWalker::SetWalkerTransform(const float& Time)
 	}
 }
 
-void AWalker::GetWireFrame(TArray<FVector2D>& WireFrame)
+void AWalker::GetWireFrame(TArray<FVector2D>& WireFrame, float FrameTime, bool bCapturing)
 {
-	FVector origin, extent; 
+	FVector origin, extent;
 
-	extent = MeshExtent.RotateAngleAxis(GetActorRotation().Yaw, FVector(0, 0, 1.0f));
-	origin = GetActorLocation();
-	origin.Z += extent.Z;
+	if (bCapturing) {
+		origin = SkeletalMesh->Bounds.Origin;
+		extent = SkeletalMesh->Bounds.BoxExtent;
+	}
+	else {
+		TArray<float> boundsKeys;
+		BoundsFrames.GenerateKeyArray(boundsKeys);
+		for (int32 index = 0; index < boundsKeys.Num(); index++) {
+			if ((index + 1) >= boundsKeys.Num()) {
+				origin = BoundsFrames[boundsKeys[index]].Origin;
+				extent = BoundsFrames[boundsKeys[index]].BoxExtent;
+				break;
+			}
+
+			if (FrameTime < boundsKeys[index]) {
+				origin = BoundsFrames[boundsKeys[index]].Origin;
+				extent = BoundsFrames[boundsKeys[index]].BoxExtent;
+				break;
+			}
+			else if (boundsKeys[index] < FrameTime && boundsKeys[index + 1] > FrameTime) {
+				float delta = (FrameTime - boundsKeys[index]) - (boundsKeys[index + 1] - FrameTime);
+				origin = delta > 0 ? BoundsFrames[boundsKeys[index + 1]].Origin : BoundsFrames[boundsKeys[index]].Origin;
+				extent = delta > 0 ? BoundsFrames[boundsKeys[index + 1]].BoxExtent : BoundsFrames[boundsKeys[index]].BoxExtent;
+				break;
+			}
+		}
+	}
 
 	TArray<FVector> box;
 
@@ -218,9 +242,9 @@ void AWalker::GetWireFrame(TArray<FVector2D>& WireFrame)
 	//WireFrame.Add(FVector2D(Min.X, Min.Y) / scale);
 }
 
-bool AWalker::IsWalkerInViewport()
+bool AWalker::IsWalkerInViewport(const TArray<FVector2D>& BoundsPoints)
 {
-	TArray<FVector2D> points = WireFramePoints;
+	TArray<FVector2D> points = BoundsPoints;
 	//TODO添加模型中心点
 	FVector2D viewportSize = UWidgetLayoutLibrary::GetViewportSize(this);
 	bool inViewport = false;
