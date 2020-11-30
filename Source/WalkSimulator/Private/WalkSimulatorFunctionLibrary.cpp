@@ -65,14 +65,20 @@ void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<i
 		{
 			continue;
 		}
-		tempPathPoint.Point.X = FCString::Atof(*leftString) * 100.f;
+		tempPathPoint.Point.X = FCString::Atof(*leftString);
+
+		currentString.Split(TEXT(","), &leftString, &rightString);
+		if (leftString.IsEmpty())
+		{
+			continue;
+		}
+		tempPathPoint.Point.Y = FCString::Atof(*leftString);
 
 		if (rightString.IsEmpty())
 		{
 			continue;
 		}
-
-		tempPathPoint.Point.Y = FCString::Atof(*rightString) * 100.f;
+		tempPathPoint.Point.Z = FCString::Atof(*rightString);
 
 		FPathPointList pathList = WalkPath.FindRef(tempId);
 		pathList.WalkerId = tempId;
@@ -112,6 +118,8 @@ void UWalkSimulatorFunctionLibrary::WalkPathInterpolation(TMap<int32, FPathPoint
 		for (int32 ponitIndex = 1; ponitIndex < pointList.Num() -1; ponitIndex++)
 		{
 			FVector currentPath = pointList[ponitIndex].Point - pointList[ponitIndex - 1].Point;
+			//Z-axis do not need to do interpolation
+			currentPath.Z = 0.f;
 			FVector nextPath = pointList[ponitIndex + 1].Point - pointList[ponitIndex].Point;
 			int32 pathFrame = static_cast<int32>((pointList[ponitIndex].Time - pointList[ponitIndex - 1].Time) / DeltTime);
 			float pathStartTime = pointList[ponitIndex - 1].Time;
