@@ -67,6 +67,12 @@ void UWalkSimulatorFunctionLibrary::InitWalkPath(const FString& FilePath, TMap<i
 		}
 		tempPathPoint.Point.X = FCString::Atof(*leftString);
 
+		currentString = rightString;
+		if (currentString.IsEmpty())
+		{
+			continue;
+		}
+
 		currentString.Split(TEXT(","), &leftString, &rightString);
 		if (leftString.IsEmpty())
 		{
