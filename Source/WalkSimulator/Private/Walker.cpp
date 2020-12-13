@@ -272,7 +272,9 @@ void AWalker::RefreshVisibility(float FrameTime)
 
 	if (distanceTime < 0.0f || CheckStartIndex >= PathPoints.Num())
 	{
+		OnMeshHidden();
 		GetRootComponent()->SetHiddenInGame(true, true);
+
 	}
 	else
 	{

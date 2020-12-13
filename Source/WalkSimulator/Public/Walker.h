@@ -46,6 +46,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RefreshVisibility(float FrameTime);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnMeshHidden();
+
 private:
 	bool FindNearestAnimFrame(const float& Time, FAnimFrame& CurrentAnimFrame);
 
