@@ -274,7 +274,6 @@ void AWalker::RefreshVisibility(float FrameTime)
 	{
 		OnMeshHidden();
 		GetRootComponent()->SetHiddenInGame(true, true);
-
 	}
 	else
 	{
